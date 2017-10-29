@@ -9,3 +9,4 @@ members = ["libroccat"]
 [dependencies]
 libroccat = { path = "libroccat" }
 clap = "2.27.1"
+dyon = "0.25.0"
