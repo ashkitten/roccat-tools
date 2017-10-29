@@ -1,5 +1,5 @@
-mod profile;
-mod deviceinfo;
+pub mod profile;
+pub mod deviceinfo;
 
 use std::path::{Path, PathBuf};
 
@@ -23,20 +23,23 @@ impl RyosMkFx {
         &self.path
     }
 
-    /// Gets the current profile of the keyboard
+    /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8> {
         // Numbering starts from 32 for some reason in the API
-        Ok(Profile::read(&self.path)?.index)
+        Ok(Profile::read(&self.path)?.index - 31)
     }
 
-    /// Sets the current profile of the keyboard
+    /// Sets the current profile
     pub fn set_profile(&self, index: u8) -> Result<()> {
         // Numbering starts from 32 for some reason in the API
-        Profile::write(&self.path, &Profile::new(index + 31))?;
-        Ok(())
+        Profile::write(&self.path, &Profile::new(index + 31))
     }
 
     pub fn get_info(&self) -> Result<DeviceInfo> {
-        Ok(DeviceInfo::read(&self.path)?)
+        DeviceInfo::read(&self.path)
+    }
+
+    pub fn get_common_name<'a>() -> &'a str {
+        "Ryos MK FX"
     }
 }
