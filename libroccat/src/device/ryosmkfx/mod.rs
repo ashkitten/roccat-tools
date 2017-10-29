@@ -1,11 +1,6 @@
-pub mod profile;
-pub mod deviceinfo;
-
 use std::path::{Path, PathBuf};
 
-use self::profile::Profile;
-use self::deviceinfo::DeviceInfo;
-use device::DeviceData;
+use device::HidrawData;
 use errors::*;
 
 pub struct RyosMkFx {
@@ -41,5 +36,22 @@ impl RyosMkFx {
 
     pub fn get_common_name<'a>() -> &'a str {
         "Ryos MK FX"
+    }
+}
+
+impl_hidraw! {
+    readwrite, report_id: 0x05;
+    pub struct Profile {
+        pub index: u8,
+    }
+}
+
+impl_hidraw! {
+    read, report_id: 0x0f;
+    pub struct DeviceInfo {
+        pub firmware_version: u8,
+        pub dfu_version: u8,
+        pub led_firmware_version: u8,
+        pub unknown: [u8; 2],
     }
 }

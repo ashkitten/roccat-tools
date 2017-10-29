@@ -1,9 +1,6 @@
-pub mod profile;
-
 use std::path::{Path, PathBuf};
 
-use self::profile::Profile;
-use device::DeviceData;
+use device::HidrawData;
 use errors::*;
 
 pub struct Tyon {
@@ -33,5 +30,12 @@ impl Tyon {
 
     pub fn get_common_name<'a>() -> &'a str {
         "Tyon"
+    }
+}
+
+impl_hidraw! {
+    readwrite, report_id: 0x05;
+    pub struct Profile {
+        pub index: u8,
     }
 }

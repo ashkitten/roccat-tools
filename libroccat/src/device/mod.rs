@@ -7,7 +7,7 @@ use self::ryosmkfx::RyosMkFx;
 use self::tyon::Tyon;
 use errors::*;
 
-pub trait DeviceData {
+pub trait HidrawData {
     fn read(path: &Path) -> Result<Self>
     where
         Self: Sized;
