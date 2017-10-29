@@ -1,0 +1,11 @@
+[package]
+name = "roccat-tools"
+version = "0.1.0"
+authors = ["Ash Levy <ashlea@protonmail.com>"]
+
+[workspace]
+members = ["libroccat"]
+
+[dependencies]
+libroccat = { path = "libroccat" }
+clap = "2.27.1"
