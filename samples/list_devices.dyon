@@ -2,5 +2,6 @@ fn main() {
     println("Number of devices: " + str(roccat_num_devices()))
     for i roccat_num_devices() {
         println("Device " + str(i) + ": " + roccat_device_type(i))
+        println("Profile: " + str(roccat_get_profile(i)))
     }
 }
