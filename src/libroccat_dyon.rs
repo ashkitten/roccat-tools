@@ -1,5 +1,4 @@
 use libroccat;
-use libroccat::device::Device;
 use std::sync::Arc;
 
 dyon_fn! {
@@ -16,19 +15,13 @@ dyon_fn! {
 
 dyon_fn! {
     fn get_profile(device_index: f64) -> f64 {
-        match libroccat::find_devices().unwrap()[device_index as usize] {
-            Device::RyosMkFx(ref device) => device.get_profile().unwrap() as f64,
-            Device::Tyon(ref device) => device.get_profile().unwrap() as f64,
-        }
+        libroccat::find_devices().unwrap()[device_index as usize].get_profile().unwrap() as f64
     }
 }
 
 dyon_fn! {
     fn set_profile(device_index: f64, profile: f64) {
-        match libroccat::find_devices().unwrap()[device_index as usize] {
-            Device::RyosMkFx(ref device) => device.set_profile(profile as u8).unwrap(),
-            Device::Tyon(ref device) => device.set_profile(profile as u8).unwrap(),
-        }
+        libroccat::find_devices().unwrap()[device_index as usize].set_profile(profile as u8).unwrap();
     }
 }
 

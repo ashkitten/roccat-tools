@@ -20,8 +20,6 @@ pub enum Device {
 }
 
 impl Device {
-    // TODO: write macro for generating enum function calls
-
     pub fn get_path(&self) -> &Path {
         match *self {
             Device::RyosMkFx(ref device) => device.get_path(),
@@ -33,6 +31,20 @@ impl Device {
         match *self {
             Device::RyosMkFx(_) => RyosMkFx::get_common_name(),
             Device::Tyon(_) => Tyon::get_common_name(),
+        }
+    }
+
+    pub fn get_profile(&self) -> Result<u8> {
+        match *self {
+            Device::RyosMkFx(ref device) => device.get_profile(),
+            Device::Tyon(ref device) => device.get_profile(),
+        }
+    }
+
+    pub fn set_profile(&self, profile: u8) -> Result<()> {
+        match *self {
+            Device::RyosMkFx(ref device) => device.set_profile(profile),
+            Device::Tyon(ref device) => device.set_profile(profile),
         }
     }
 }
