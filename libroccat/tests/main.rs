@@ -15,7 +15,18 @@ fn ryosmkfx() {
         if let Device::RyosMkFx(device) = device {
             println!("Found Ryos MK FX: {:?}", device.get_path());
             println!("Profile index: {}", device.get_profile().unwrap());
-            println!("Firmware version: {}", device.get_info().unwrap().firmware_version);
+            println!(
+                "Firmware version: {}",
+                device.get_info().unwrap().firmware_version
+            );
+            for i in 0..5 {
+                let light = device.get_light(i).unwrap();
+                println!(
+                    "Light effect for profile {}: {:?}",
+                    light.profile,
+                    light.effect
+                );
+            }
         }
     }
 }

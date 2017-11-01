@@ -7,13 +7,6 @@ use self::ryosmkfx::RyosMkFx;
 use self::tyon::Tyon;
 use errors::*;
 
-pub trait HidrawData {
-    fn read(path: &Path) -> Result<Self>
-    where
-        Self: Sized;
-    fn write(path: &Path, data: &Self) -> Result<()>;
-}
-
 pub enum Device {
     RyosMkFx(RyosMkFx),
     Tyon(Tyon),

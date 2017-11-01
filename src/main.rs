@@ -1,9 +1,9 @@
 extern crate clap;
-extern crate libroccat;
 #[macro_use]
 extern crate dyon;
 #[macro_use]
 extern crate error_chain;
+extern crate libroccat;
 
 error_chain! {
     links {

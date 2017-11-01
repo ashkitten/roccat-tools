@@ -3,25 +3,36 @@ use std::sync::Arc;
 
 dyon_fn! {
     fn num_devices() -> f64 {
-        libroccat::find_devices().unwrap_or_default().len() as f64
+        libroccat::find_devices()
+            .unwrap_or_default()
+            .len() as f64
     }
 }
 
 dyon_fn! {
     fn device_type(device_index: f64) -> String {
-        libroccat::find_devices().unwrap_or_default()[device_index as usize].get_common_name().to_string()
+        libroccat::find_devices()
+            .unwrap_or_default()[device_index as usize]
+            .get_common_name()
+            .to_string()
     }
 }
 
 dyon_fn! {
     fn get_profile(device_index: f64) -> f64 {
-        libroccat::find_devices().unwrap()[device_index as usize].get_profile().unwrap() as f64
+        libroccat::find_devices()
+            .unwrap()[device_index as usize]
+            .get_profile()
+            .unwrap() as f64
     }
 }
 
 dyon_fn! {
     fn set_profile(device_index: f64, profile: f64) {
-        libroccat::find_devices().unwrap()[device_index as usize].set_profile(profile as u8).unwrap();
+        libroccat::find_devices()
+            .unwrap()[device_index as usize]
+            .set_profile(profile as u8)
+            .unwrap();
     }
 }
 
@@ -34,29 +45,45 @@ pub fn run_dyon(path: &str) {
 
         let mut module = Module::new();
 
-        module.add(Arc::new("roccat_num_devices".into()), num_devices, Dfn {
-            lts: vec![],
-            tys: vec![],
-            ret: Type::F64,
-        });
+        module.add(
+            Arc::new("roccat_num_devices".into()),
+            num_devices,
+            Dfn {
+                lts: vec![],
+                tys: vec![],
+                ret: Type::F64,
+            },
+        );
 
-        module.add(Arc::new("roccat_device_type".into()), device_type, Dfn {
-            lts: vec![Lt::Default],
-            tys: vec![Type::F64],
-            ret: Type::Text,
-        });
+        module.add(
+            Arc::new("roccat_device_type".into()),
+            device_type,
+            Dfn {
+                lts: vec![Lt::Default],
+                tys: vec![Type::F64],
+                ret: Type::Text,
+            },
+        );
 
-        module.add(Arc::new("roccat_get_profile".into()), get_profile, Dfn {
-            lts: vec![Lt::Default],
-            tys: vec![Type::F64],
-            ret: Type::F64,
-        });
+        module.add(
+            Arc::new("roccat_get_profile".into()),
+            get_profile,
+            Dfn {
+                lts: vec![Lt::Default],
+                tys: vec![Type::F64],
+                ret: Type::F64,
+            },
+        );
 
-        module.add(Arc::new("roccat_set_profile".into()), set_profile, Dfn {
-            lts: vec![Lt::Default, Lt::Default],
-            tys: vec![Type::F64, Type::F64],
-            ret: Type::Void,
-        });
+        module.add(
+            Arc::new("roccat_set_profile".into()),
+            set_profile,
+            Dfn {
+                lts: vec![Lt::Default, Lt::Default],
+                tys: vec![Type::F64, Type::F64],
+                ret: Type::Void,
+            },
+        );
 
         if error(load(path, &mut module)) {
             None
@@ -66,6 +93,6 @@ pub fn run_dyon(path: &str) {
     };
 
     if error(runtime.run(&Arc::new(module.unwrap()))) {
-        return
+        return;
     }
 }

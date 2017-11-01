@@ -1,6 +1,5 @@
 use std::path::{Path, PathBuf};
 
-use device::HidrawData;
 use errors::*;
 
 pub struct Tyon {
@@ -34,8 +33,10 @@ impl Tyon {
 }
 
 impl_hidraw! {
-    readwrite, report_id: 0x05;
-    pub struct Profile {
-        pub index: u8,
+    readwrite;
+    Profile {
+        @constant _report_id: u8 = 0x05,
+        @constant _size: u8 = ::std::mem::size_of::<Self>() as u8,
+        index: u8,
     }
 }

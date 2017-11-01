@@ -1,17 +1,18 @@
 #[macro_export]
 macro_rules! impl_hidraw {
     (
-        readwrite, report_id: $report_id:expr;
+        readwrite;
         $(#[$meta:meta])*
-        pub struct $name:ident {
-            $(pub $field_name:ident: $field_type:ty,)+
+        $name:ident {
+            $(@constant $const_field_name:ident: $const_field_type:ty = $const_field_val:expr,)*
+            $($field_name:ident: $field_type:ty,)+
         }
     ) => (
         $(#[$meta])*
-        #[derive(Clone)]
+        #[derive(Clone, Default, Debug)]
+        #[repr(packed)]
         pub struct $name {
-            _report_id: u8,
-            _size: u8,
+            $($const_field_name: $const_field_type,)*
             $(pub $field_name: $field_type,)+
         }
 
@@ -21,23 +22,17 @@ macro_rules! impl_hidraw {
 
             pub fn new($($field_name: $field_type),+) -> Self {
                 Self {
-                    _report_id: $report_id,
-                    _size: ::std::mem::size_of::<Self>() as u8,
+                    $($const_field_name: $const_field_val,)*
                     $($field_name: $field_name,)+
                 }
             }
-        }
 
-        impl Default for $name {
-            fn default() -> Self {
-                Self::new($(<$field_type>::default()),+)
-            }
-        }
-
-        impl ::device::HidrawData for $name {
-            fn read(path: &::std::path::Path) -> Result<Self> {
+            pub fn read(path: &::std::path::Path) -> Result<Self> {
                 let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
-                let mut data = Self::default();
+                let mut data = Self {
+                    $($const_field_name: $const_field_val,)*
+                    .. Default::default()
+                };
                 unsafe {
                     use std::os::unix::io::AsRawFd;
                     Self::hidraw_read(file.as_raw_fd(), &mut data as *mut Self)?;
@@ -45,7 +40,7 @@ macro_rules! impl_hidraw {
                 Ok(data)
             }
 
-            fn write(path: &::std::path::Path, data: &Self) -> Result<()> {
+            pub fn write(path: &::std::path::Path, data: &Self) -> Result<()> {
                 let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
                 let mut data = data.clone();
                 unsafe {
@@ -58,17 +53,18 @@ macro_rules! impl_hidraw {
     );
 
     (
-        read, report_id: $report_id:expr;
+        read;
         $(#[$meta:meta])*
-        pub struct $name:ident {
-            $(pub $field_name:ident: $field_type:ty,)+
+        $name:ident {
+            $(@constant $const_field_name:ident: $const_field_type:ty = $const_field_val:expr,)*
+            $($field_name:ident: $field_type:ty,)+
         }
     ) => (
         $(#[$meta])*
-        #[derive(Clone)]
+        #[derive(Clone, Default, Debug)]
+        #[repr(packed)]
         pub struct $name {
-            _report_id: u8,
-            _size: u8,
+            $($const_field_name: $const_field_type,)*
             $(pub $field_name: $field_type,)+
         }
 
@@ -78,23 +74,17 @@ macro_rules! impl_hidraw {
 
             pub fn new($($field_name: $field_type),+) -> Self {
                 Self {
-                    _report_id: $report_id,
-                    _size: ::std::mem::size_of::<Self>() as u8,
+                    $($const_field_name: $const_field_val,)*
                     $($field_name: $field_name,)+
                 }
             }
-        }
 
-        impl Default for $name {
-            fn default() -> Self {
-                Self::new($(<$field_type>::default()),+)
-            }
-        }
-
-        impl ::device::HidrawData for $name {
-            fn read(path: &::std::path::Path) -> Result<Self> {
+            pub fn read(path: &::std::path::Path) -> Result<Self> {
                 let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
-                let mut data = Self::default();
+                let mut data = Self {
+                    $($const_field_name: $const_field_val,)*
+                    .. Default::default()
+                };
                 unsafe {
                     use std::os::unix::io::AsRawFd;
                     Self::hidraw_read(file.as_raw_fd(), &mut data as *mut Self)?;
@@ -102,24 +92,25 @@ macro_rules! impl_hidraw {
                 Ok(data)
             }
 
-            fn write(_path: &::std::path::Path, _data: &Self) -> Result<()> {
+            pub fn write(_path: &::std::path::Path, _data: &Self) -> Result<()> {
                 bail!(stringify!($name).to_owned() + " is read-only");
             }
         }
     );
 
     (
-        write, report_id: $report_id:expr;
+        write;
         $(#[$meta:meta])*
-        pub struct $name:ident {
-            $(pub $field_name:ident: $field_type:ty,)+
+        $name:ident {
+            $(@constant $const_field_name:ident: $const_field_type:ty = $const_field_val:expr,)*
+            $($field_name:ident: $field_type:ty,)+
         }
     ) => (
         $(#[$meta])*
-        #[derive(Clone)]
+        #[derive(Clone, Default, Debug)]
+        #[repr(packed)]
         pub struct $name {
-            _report_id: u8,
-            _size: u8,
+            $($const_field_name: $const_field_type,)*
             $(pub $field_name: $field_type,)+
         }
 
@@ -129,25 +120,16 @@ macro_rules! impl_hidraw {
 
             pub fn new($($field_name: $field_type),+) -> Self {
                 Self {
-                    _report_id: $report_id,
-                    _size: ::std::mem::size_of::<Self>() as u8,
+                    $($const_field_name: $const_field_val,)*
                     $($field_name: $field_name,)+
                 }
             }
-        }
 
-        impl default for $name {
-            fn default() -> self {
-                Self::new($(<$field_type>::default()),+)
-            }
-        }
-
-        impl ::device::HidrawData for $name {
-            fn read(_path: &::std::path::Path) -> Result<Self> {
+            pub fn read(_path: &::std::path::Path) -> Result<Self> {
                 bail!(stringify!($name).to_owned() + " is write-only");
             }
 
-            fn write(path: &::std::path::Path, data: &Self) -> Result<()> {
+            pub fn write(path: &::std::path::Path, data: &Self) -> Result<()> {
                 let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
                 let mut data = data.clone();
                 unsafe {

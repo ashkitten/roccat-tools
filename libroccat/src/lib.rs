@@ -1,3 +1,5 @@
+#![feature(const_size_of)]
+
 #[macro_use]
 extern crate error_chain;
 extern crate libudev;
