@@ -91,10 +91,6 @@ macro_rules! impl_hidraw {
                 }
                 Ok(data)
             }
-
-            pub fn write(_path: &::std::path::Path, _data: &Self) -> Result<()> {
-                bail!(stringify!($name).to_owned() + " is read-only");
-            }
         }
     );
 
@@ -123,10 +119,6 @@ macro_rules! impl_hidraw {
                     $($const_field_name: $const_field_val,)*
                     $($field_name: $field_name,)+
                 }
-            }
-
-            pub fn read(_path: &::std::path::Path) -> Result<Self> {
-                bail!(stringify!($name).to_owned() + " is write-only");
             }
 
             pub fn write(path: &::std::path::Path, data: &Self) -> Result<()> {

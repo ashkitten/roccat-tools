@@ -1,5 +1,6 @@
 #![feature(const_size_of)]
 
+extern crate bitfield;
 #[macro_use]
 extern crate error_chain;
 extern crate libudev;

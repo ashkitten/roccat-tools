@@ -7,3 +7,4 @@ authors = ["Ash Levy <ashlea@protonmail.com>"]
 nix = "0.9.0"
 libudev = "0.2.0"
 error-chain = "0.11.0"
+bitfield = { path = "../bitfield" }

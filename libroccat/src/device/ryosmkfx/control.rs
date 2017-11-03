@@ -34,7 +34,7 @@ impl Control {
 
             sleep(Duration::from_millis(50));
 
-            let control = Control::read(path)?;
+            let control = Self::read(path)?;
             match unsafe { ::std::mem::transmute(control.value) } {
                 ControlStatus::Ok => return Ok(()),
                 ControlStatus::Busy => (),
