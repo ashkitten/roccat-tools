@@ -1,7 +1,5 @@
 extern crate clap;
 #[macro_use]
-extern crate dyon;
-#[macro_use]
 extern crate error_chain;
 extern crate libroccat;
 
@@ -15,9 +13,6 @@ error_chain! {
     }
 }
 
-mod libroccat_dyon;
-
-use libroccat::device::Device;
 use clap::{App, Arg};
 
 quick_main!(|| -> Result<()> {
@@ -39,10 +34,6 @@ quick_main!(|| -> Result<()> {
                 .long("set-profile")
                 .help("Sets the current profile of the device")
                 .takes_value(true),
-            Arg::with_name("script")
-                .long("script")
-                .help("Runs a Dyon script")
-                .takes_value(true),
         ])
         .get_matches();
 
@@ -53,33 +44,18 @@ quick_main!(|| -> Result<()> {
         std::process::exit(0);
     }
 
-    if let Some(path) = matches.value_of("script") {
-        libroccat_dyon::run_dyon(path);
-    }
-
     if let Some(device_index) = matches.value_of("device") {
         let device_index = device_index.parse::<usize>()?;
-        match libroccat::find_devices()?[device_index] {
-            Device::RyosMkFx(ref device) => {
-                if let Some(profile) = matches.value_of("set_profile") {
-                    // Profile numbering starts from 1 in libroccat
-                    device.set_profile(profile.parse::<u8>()?)?;
-                }
+        let device = &libroccat::find_devices()?[device_index];
 
-                if matches.is_present("get_profile") {
-                    println!("{}", device.get_profile()?);
-                }
-            }
-            Device::Tyon(ref device) => {
-                if let Some(profile) = matches.value_of("set_profile") {
-                    // Profile numbering starts from 1 in libroccat
-                    device.set_profile(profile.parse::<u8>()?)?;
-                }
+        if matches.is_present("get_profile") {
+            println!("{}", device.get_profile()?);
+            return Ok(());
+        }
 
-                if matches.is_present("get_profile") {
-                    println!("{}", device.get_profile()?);
-                }
-            }
+        if let Some(profile) = matches.value_of("set_profile") {
+            device.set_profile(profile.parse::<u8>()?)?;
+            return Ok(());
         }
     }
 

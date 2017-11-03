@@ -42,6 +42,7 @@ impl RyosMkFx {
 
     /// Sets the current profile
     pub fn set_profile(&self, index: u8) -> Result<()> {
+        ensure!(index > 31 && index <= 36, "Profile {} is out of range", index);
         // Numbering starts from 32 for some reason in the API
         Profile::write(&self.path, &Profile::new(index + 31))
     }

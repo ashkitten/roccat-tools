@@ -24,6 +24,7 @@ impl Tyon {
 
     /// Sets the current profile
     pub fn set_profile(&self, index: u8) -> Result<()> {
+        ensure!(index <= 5, "Profile {} is out of range", index);
         Profile::write(&self.path, &Profile::new(index - 1))
     }
 
