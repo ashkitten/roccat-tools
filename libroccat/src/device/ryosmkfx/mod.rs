@@ -79,7 +79,7 @@ impl RyosMkFx {
     /// Sets the current profile
     pub fn set_profile(&self, index: u8) -> Result<()> {
         ensure!(
-            index > 31 && index <= 36,
+            index >= 1 && index <= 5,
             "Profile {} is out of range",
             index
         );
