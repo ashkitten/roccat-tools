@@ -52,7 +52,6 @@ impl LuaUserData for RyosMkFx {
         methods.add_method("name", |_, _, ()| Ok("ryos_mk_fx"));
 
         methods.add_method("get_event", |_, this, ()| loop {
-
             loop {
                 if let Some(event) = this.0.get_event() {
                     if event.type_ == RyosMkFxEventType::Effect {

@@ -44,7 +44,9 @@ impl RyosMkFx {
             let mut file;
             {
                 let interfaces_guard = interfaces.lock().unwrap();
-                file = (*interfaces_guard)[Interface::Mouse as usize].try_clone().unwrap();
+                file = (*interfaces_guard)[Interface::Mouse as usize]
+                    .try_clone()
+                    .unwrap();
             }
 
             loop {
