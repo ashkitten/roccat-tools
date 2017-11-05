@@ -186,45 +186,45 @@ for i, device in ipairs(libroccat.find_devices()) do
 end
 
 for i, ryosmkfx in pairs(ryosmkfx_table) do
-    ryosmkfx["device"]:set_custom_lights(ryosmkfx["leds"])
+    ryosmkfx.device:set_custom_lights(ryosmkfx.leds)
 end
 
 -- event loop
 
 while true do
     for i, ryosmkfx in pairs(ryosmkfx_table) do
-        local sdk, pressed = ryosmkfx["device"]:get_event_timed(SLOWDOWN)
+        local sdk, pressed = ryosmkfx.device:get_event_timed(SLOWDOWN)
 
         if pressed then
-            ryosmkfx["ripples"][#ryosmkfx["ripples"] + 1] = {
+            ryosmkfx.ripples[#ryosmkfx.ripples + 1] = {
                 center = KEYS[sdk],
                 radius = 1
             }
         end
 
-        for i = #ryosmkfx["ripples"], 1, -1 do
-            if ryosmkfx["ripples"][i].radius <= MATRIX_COLS / KEY_WIDTH + #RIPPLE_COLORS then
-                ryosmkfx["ripples"][i].radius = ryosmkfx["ripples"][i].radius + 1
+        for i = #ryosmkfx.ripples, 1, -1 do
+            if ryosmkfx.ripples[i].radius <= MATRIX_COLS / KEY_WIDTH + #RIPPLE_COLORS then
+                ryosmkfx.ripples[i].radius = ryosmkfx.ripples[i].radius + 1
             else
-                table.remove(ryosmkfx["ripples"], i)
+                table.remove(ryosmkfx.ripples, i)
             end
         end
 
-        if #ryosmkfx["ripples"] > 0 then
-            ryosmkfx["leds"] = table.shallow_copy(KEY_COLORS)
+        if #ryosmkfx.ripples > 0 then
+            ryosmkfx.leds = table.shallow_copy(KEY_COLORS)
 
-            for _, ripple in pairs(ryosmkfx["ripples"]) do
+            for _, ripple in pairs(ryosmkfx.ripples) do
                 for i, color in ipairs(RIPPLE_COLORS) do
                     if i <= ripple.radius then
                         leds = draw_circle(ripple.center, ripple.radius - i)
                         for _, led in pairs(leds) do
-                            ryosmkfx["leds"][led] = color
+                            ryosmkfx.leds[led] = color
                         end
                     end
                 end
             end
 
-            ryosmkfx["device"]:set_custom_lights(ryosmkfx["leds"])
+            ryosmkfx.device:set_custom_lights(ryosmkfx.leds)
         end
     end
 end
