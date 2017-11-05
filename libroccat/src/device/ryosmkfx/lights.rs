@@ -65,7 +65,8 @@ impl Default for LightDimnessType {
 
 impl_hidraw! {
     readwrite;
-    Light {
+    #[derive(Debug)]
+    Lights {
         @constant _report_id: u8 = 0x0d,
         @constant _size: u8 = ::std::mem::size_of::<Self>() as u8,
         profile: u8,

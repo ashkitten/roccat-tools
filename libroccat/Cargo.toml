@@ -4,7 +4,11 @@ version = "0.1.0"
 authors = ["Ash Levy <ashlea@protonmail.com>"]
 
 [dependencies]
-nix = "0.9.0"
-libudev = "0.2.0"
-error-chain = "0.11.0"
 bitfield = { path = "../bitfield" }
+error-chain = "0.11.0"
+futures = "0.1.17"
+libudev = "0.2.0"
+nix = "0.9.0"
+tokio-core = "0.1.10"
+tokio-file-unix = "0.4.1"
+tokio-io = "0.1.3"

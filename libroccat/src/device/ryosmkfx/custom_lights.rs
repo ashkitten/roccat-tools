@@ -1,6 +1,7 @@
 use bitfield::*;
-use errors::*;
 use std::fmt;
+
+use errors::*;
 use super::hardware_color::*;
 use super::sdk::*;
 
@@ -38,8 +39,8 @@ impl Default for LightLayer {
 }
 
 impl fmt::Debug for LightLayer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("LightLayer")
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.debug_struct("LightLayer")
             .field(
                 "states",
                 &self.states
@@ -243,7 +244,7 @@ fn get_unique_values(values: [u8; 120], data: &LightLayerData) -> Vec<u8> {
         }
     }
 
-    set.iter().rev().map(|i| *i).collect()
+    set.iter().map(|i| *i).collect()
 }
 
 fn init_means(values: [u8; 120], means: &mut [u8; 7], data: &LightLayerData) {
@@ -326,8 +327,8 @@ impl Default for LightLayerData {
 }
 
 impl fmt::Debug for LightLayerData {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("LightLayerData")
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.debug_struct("LightLayerData")
             .field("keys", &&self.keys[..])
             .finish()
     }
@@ -340,7 +341,7 @@ impl LightLayerData {
         }
     }
 
-    pub fn get_key_state(&mut self, sdk: u8) -> bool {
+    pub fn get_key_state(&self, sdk: u8) -> bool {
         self.keys[sdk_index_to_light_index(sdk) as usize].state
     }
 
@@ -348,7 +349,7 @@ impl LightLayerData {
         self.keys[sdk_index_to_light_index(sdk) as usize].state = state;
     }
 
-    pub fn get_key_red(&mut self, sdk: u8) -> u8 {
+    pub fn get_key_red(&self, sdk: u8) -> u8 {
         self.keys[sdk_index_to_light_index(sdk) as usize].red
     }
 
@@ -356,7 +357,7 @@ impl LightLayerData {
         self.keys[sdk_index_to_light_index(sdk) as usize].red = red;
     }
 
-    pub fn get_key_green(&mut self, sdk: u8) -> u8 {
+    pub fn get_key_green(&self, sdk: u8) -> u8 {
         self.keys[sdk_index_to_light_index(sdk) as usize].green
     }
 
@@ -364,7 +365,7 @@ impl LightLayerData {
         self.keys[sdk_index_to_light_index(sdk) as usize].green = green;
     }
 
-    pub fn get_key_blue(&mut self, sdk: u8) -> u8 {
+    pub fn get_key_blue(&self, sdk: u8) -> u8 {
         self.keys[sdk_index_to_light_index(sdk) as usize].blue
     }
 

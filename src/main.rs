@@ -1,19 +1,32 @@
+#![feature(type_ascription)]
+
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate libroccat;
+extern crate rlua;
 
-error_chain! {
-    links {
-        LibroccatError(::libroccat::errors::Error, ::libroccat::errors::ErrorKind);
+mod libroccat_lua;
+
+mod errors {
+    error_chain! {
+        links {
+            LibroccatError(::libroccat::errors::Error, ::libroccat::errors::ErrorKind);
+        }
+
+        foreign_links {
+            RLuaError(::rlua::Error);
+            StdIoError(::std::io::Error);
+            StdParseIntError(::std::num::ParseIntError);
+        }
     }
 
-    foreign_links {
-        StdParseIntError(::std::num::ParseIntError);
-    }
+    unsafe impl Sync for Error {}
 }
 
 use clap::{App, Arg};
+
+use errors::*;
 
 quick_main!(|| -> Result<()> {
     let matches = App::new("roccat-tools")
@@ -34,6 +47,10 @@ quick_main!(|| -> Result<()> {
                 .long("set-profile")
                 .help("Sets the current profile of the device")
                 .takes_value(true),
+            Arg::with_name("script")
+                .long("script")
+                .help("Runs a script")
+                .takes_value(true),
         ])
         .get_matches();
 
@@ -46,7 +63,7 @@ quick_main!(|| -> Result<()> {
 
     if let Some(device_index) = matches.value_of("device") {
         let device_index = device_index.parse::<usize>()?;
-        let device = &libroccat::find_devices()?[device_index];
+        let device = libroccat::find_devices()?.remove(device_index);
 
         if matches.is_present("get_profile") {
             println!("{}", device.get_profile()?);
@@ -57,6 +74,10 @@ quick_main!(|| -> Result<()> {
             device.set_profile(profile.parse::<u8>()?)?;
             return Ok(());
         }
+    }
+
+    if let Some(path) = matches.value_of("script") {
+        libroccat_lua::run_script(path)?;
     }
 
     Ok(())

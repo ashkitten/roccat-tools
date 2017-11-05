@@ -1,11 +1,16 @@
 #![feature(const_size_of)]
+#![feature(try_from)]
 
 extern crate bitfield;
 #[macro_use]
 extern crate error_chain;
+extern crate futures;
 extern crate libudev;
 #[macro_use]
 extern crate nix;
+extern crate tokio_core;
+extern crate tokio_file_unix;
+extern crate tokio_io;
 
 pub mod errors {
     error_chain! {
@@ -22,10 +27,10 @@ mod macros;
 
 pub mod device;
 
-use device::Device;
+pub use device::Device;
+pub use errors::*;
 use device::ryosmkfx::RyosMkFx;
 use device::tyon::Tyon;
-use errors::*;
 
 pub fn find_devices() -> Result<Vec<Device>> {
     let context = libudev::Context::new().unwrap();
@@ -40,24 +45,57 @@ pub fn find_devices() -> Result<Vec<Device>> {
                 let mut enumerator = libudev::Enumerator::new(&context)?;
                 enumerator.match_subsystem("hidraw")?;
                 enumerator.match_parent(&parent)?;
-                enumerator
-                    .scan_devices()
+                match parent
+                    .attribute_value("idProduct")
                     .unwrap()
-                    .filter_map(|device| {
-                        match parent.attribute_value("idProduct")?.to_str()? {
-                            // Ryos MK FX
-                            "2fda" => Some(Device::RyosMkFx(RyosMkFx::new(device.devnode()?))),
-                            // Tyon Black
-                            "2e4a" => Some(Device::Tyon(Tyon::new(device.devnode()?))),
-                            // Tyon White
-                            "2e4b" => Some(Device::Tyon(Tyon::new(device.devnode()?))),
-                            _ => None,
-                        }
-                    })
-                    .nth(0)
-                    .ok_or("incompatible Roccat device".into())
+                    .to_str()
+                    .unwrap()
+                {
+                    // Ryos MK FX
+                    "2fda" => Some(Device::RyosMkFx(RyosMkFx::new(
+                        enumerator
+                            .scan_devices()
+                            .unwrap()
+                            .filter_map(|device| if let Some(devnode) = device.devnode() {
+                                Some(devnode.to_path_buf())
+                            } else {
+                                None
+                            })
+                            .collect(),
+                    )?)),
+                    // Tyon Black
+                    "2e4a" => Some(Device::Tyon(Tyon::new(
+                        enumerator
+                            .scan_devices()
+                            .unwrap()
+                            .filter_map(|device| if let Some(devnode) = device.devnode() {
+                                Some(devnode.to_path_buf())
+                            } else {
+                                None
+                            })
+                            .collect(),
+                    )?)),
+                    // Tyon White
+                    "2e4b" => Some(Device::Tyon(Tyon::new(
+                        enumerator
+                            .scan_devices()
+                            .unwrap()
+                            .filter_map(|device| if let Some(devnode) = device.devnode() {
+                                Some(devnode.to_path_buf())
+                            } else {
+                                None
+                            })
+                            .collect(),
+                    )?)),
+                    _ => None,
+                }.ok_or("Incompatible Roccat device".into())
             })
-            .filter_map(|device| device.ok())
+            .filter_map(|device| if let Ok(device) = device {
+                Some(device)
+            } else {
+                println!("{}", device.err().unwrap());
+                None
+            })
             .collect(),
     )
 }

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::fs::File;
 
 use errors::*;
 
@@ -27,14 +27,14 @@ impl_hidraw! {
 }
 
 impl Control {
-    pub fn check_write(path: &Path) -> Result<()> {
+    pub fn check_write(interface: &File) -> Result<()> {
         loop {
             use std::thread::sleep;
             use std::time::Duration;
 
             sleep(Duration::from_millis(50));
 
-            let control = Self::read(path)?;
+            let control = Self::read(interface)?;
             match unsafe { ::std::mem::transmute(control.value) } {
                 ControlStatus::Ok => return Ok(()),
                 ControlStatus::Busy => (),

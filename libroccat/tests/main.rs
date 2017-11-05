@@ -3,34 +3,32 @@ extern crate libroccat;
 use libroccat::device::Device;
 
 #[test]
-fn finds_devices() {
-    for device in libroccat::find_devices().unwrap() {
-        println!("found device: {:?}", device.get_path());
-    }
-}
-
-#[test]
 fn ryosmkfx() {
     for device in libroccat::find_devices().unwrap() {
-        if let Device::RyosMkFx(device) = device {
+        if let Device::RyosMkFx(mut device) = device {
             use libroccat::device::ryosmkfx::*;
 
-            println!("Found Ryos MK FX: {:?}", device.get_path());
+            println!("Found Ryos MK FX");
+
             println!("Profile index: {}", device.get_profile().unwrap());
+
             println!(
                 "Firmware version: {}",
                 device.get_info().unwrap().firmware_version
             );
+
             for i in 0..5 {
-                let light = device.get_light(i).unwrap();
+                let lights = device.get_lights(i).unwrap();
                 println!(
                     "Light effect for profile {}: {:?}",
-                    light.profile,
-                    light.effect
+                    lights.profile,
+                    lights.effect
                 );
             }
+
             let active = device.get_custom_lights_active().unwrap();
             println!("Custom lights active: {}", active);
+
             device.set_custom_lights_active(true).unwrap();
             let mut data = LightLayerData::default();
             data.set_all_states(true);
@@ -41,17 +39,19 @@ fn ryosmkfx() {
                 device
                     .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data), 0))
                     .unwrap();
-                std::thread::sleep(std::time::Duration::from_millis(240 - i as u64 * 2));
+                std::thread::sleep(std::time::Duration::from_millis(60 - i as u64 / 2));
             }
             for i in 0..10 {
                 data.set_all_states(i % 2 == 0);
                 device
                     .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data), 0))
                     .unwrap();
-                std::thread::sleep(std::time::Duration::from_millis(200));
+                std::thread::sleep(std::time::Duration::from_millis(100));
             }
-            std::thread::sleep(std::time::Duration::from_secs(5));
-            device.set_custom_lights_active(false).unwrap();
+            device.set_custom_lights_active(active).unwrap();
+
+            println!("Press any key to end test");
+            println!("{:?}", device.get_event());
         }
     }
 }
@@ -60,7 +60,7 @@ fn ryosmkfx() {
 fn tyon() {
     for device in libroccat::find_devices().unwrap() {
         if let Device::Tyon(device) = device {
-            println!("Found Tyon: {:?}", device.get_path());
+            println!("Found Tyon");
             println!("Profile index: {}", device.get_profile().unwrap());
         }
     }

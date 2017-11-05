@@ -9,7 +9,7 @@ macro_rules! impl_hidraw {
         }
     ) => (
         $(#[$meta])*
-        #[derive(Clone, Default, Debug)]
+        #[derive(Clone, Default)]
         #[repr(packed)]
         pub struct $name {
             $($const_field_name: $const_field_type,)*
@@ -27,25 +27,25 @@ macro_rules! impl_hidraw {
                 }
             }
 
-            pub fn read(path: &::std::path::Path) -> Result<Self> {
-                let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
+            pub fn read(interface: &::std::fs::File) -> Result<Self> {
+                use std::os::unix::io::AsRawFd;
+
                 let mut data = Self {
                     $($const_field_name: $const_field_val,)*
                     .. Default::default()
                 };
                 unsafe {
-                    use std::os::unix::io::AsRawFd;
-                    Self::hidraw_read(file.as_raw_fd(), &mut data as *mut Self)?;
+                    Self::hidraw_read(interface.as_raw_fd(), &mut data as *mut Self)?;
                 }
                 Ok(data)
             }
 
-            pub fn write(path: &::std::path::Path, data: &Self) -> Result<()> {
-                let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
+            pub fn write(interface: &::std::fs::File, data: &Self) -> Result<()> {
+                use std::os::unix::io::AsRawFd;
+
                 let mut data = data.clone();
                 unsafe {
-                    use std::os::unix::io::AsRawFd;
-                    Self::hidraw_write(file.as_raw_fd(), &mut data as *mut Self)?;
+                    Self::hidraw_write(interface.as_raw_fd(), &mut data as *mut Self)?;
                 }
                 Ok(())
             }
@@ -61,7 +61,7 @@ macro_rules! impl_hidraw {
         }
     ) => (
         $(#[$meta])*
-        #[derive(Clone, Default, Debug)]
+        #[derive(Clone, Default)]
         #[repr(packed)]
         pub struct $name {
             $($const_field_name: $const_field_type,)*
@@ -79,15 +79,15 @@ macro_rules! impl_hidraw {
                 }
             }
 
-            pub fn read(path: &::std::path::Path) -> Result<Self> {
-                let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
+            pub fn read(interface: &::std::fs::File) -> Result<Self> {
+                use std::os::unix::io::AsRawFd;
+
                 let mut data = Self {
                     $($const_field_name: $const_field_val,)*
                     .. Default::default()
                 };
                 unsafe {
-                    use std::os::unix::io::AsRawFd;
-                    Self::hidraw_read(file.as_raw_fd(), &mut data as *mut Self)?;
+                    Self::hidraw_read(interface.as_raw_fd(), &mut data as *mut Self)?;
                 }
                 Ok(data)
             }
@@ -103,7 +103,7 @@ macro_rules! impl_hidraw {
         }
     ) => (
         $(#[$meta])*
-        #[derive(Clone, Default, Debug)]
+        #[derive(Clone, Default)]
         #[repr(packed)]
         pub struct $name {
             $($const_field_name: $const_field_type,)*
@@ -121,12 +121,11 @@ macro_rules! impl_hidraw {
                 }
             }
 
-            pub fn write(path: &::std::path::Path, data: &Self) -> Result<()> {
-                let file = ::std::fs::OpenOptions::new().read(true).write(true).open(path)?;
+            pub fn write(interface: &::std::fs::File, data: &Self) -> Result<()> {
+                use std::os::unix::io::AsRawFd;
                 let mut data = data.clone();
                 unsafe {
-                    use std::os::unix::io::AsRawFd;
-                    Self::hidraw_write(file.as_raw_fd(), &mut data as *mut Self)?;
+                    Self::hidraw_write(interface.as_raw_fd(), &mut data as *mut Self)?;
                 }
                 Ok(())
             }

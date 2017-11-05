@@ -1,5 +1,6 @@
+use std::fs::File;
+
 use errors::*;
-use std::path::Path;
 
 #[derive(Clone, Debug)]
 #[repr(u8)]
@@ -30,6 +31,7 @@ impl Default for LightControlWriteCheck {
 
 impl_hidraw! {
     readwrite;
+    #[derive(Debug)]
     LightControl {
         @constant _report_id: u8 = 0x13,
         @constant _size: u8 = ::std::mem::size_of::<Self> as u8,
@@ -41,14 +43,14 @@ impl_hidraw! {
 }
 
 impl LightControl {
-    pub fn check_write(path: &Path) -> Result<()> {
+    pub fn check_write(file: &File) -> Result<()> {
         loop {
             use std::thread::sleep;
             use std::time::Duration;
 
             sleep(Duration::from_millis(50));
 
-            let control = Self::read(path)?;
+            let control = Self::read(file)?;
             match unsafe { ::std::mem::transmute(control.write_check) } {
                 LightControlWriteCheck::Ok => return Ok(()),
                 LightControlWriteCheck::Busy => (),
