@@ -34,8 +34,8 @@ quick_main!(|| -> Result<()> {
         .author("Ash Lea <ashlea@protonmail.com>")
         .about("Controls Roccat devices")
         .args_from_usage("
-            -l, --list   'List attached devices'
-            -s, --script 'Run a script'
+            -l, --list            'List attached devices'
+            -s, --script <script> 'Run a script'
         ")
         .subcommand(SubCommand::with_name("get")
             .about("Get a property of a device")

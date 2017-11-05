@@ -170,61 +170,82 @@ function table.shallow_copy(t)
     return t2
 end
 
+function ryosmkfx_init_lights(ryosmkfx)
+    ryosmkfx.profile = ryosmkfx.device:get_profile()
+    if ryosmkfx.profile == 1 then
+        ryosmkfx.device:set_custom_lights_active(true)
+        ryosmkfx.device:set_custom_lights(ryosmkfx.leds)
+    else
+        ryosmkfx.device:set_custom_lights_active(false)
+    end
+end
+
 -- init
 
-ryosmkfx_table = {}
+devices = { ryosmkfx = {} }
 light_position_matrix = init_light_position_matrix()
 
 for i, device in ipairs(libroccat.find_devices()) do
     if device:name() == "ryos_mk_fx" then
-        ryosmkfx_table[#ryosmkfx_table + 1] = {
+        devices.ryosmkfx[#devices.ryosmkfx + 1] = {
             device = device,
+            profile = device:get_profile(),
             ripples = {},
             leds = table.shallow_copy(KEY_COLORS),
         }
-    end
-end
 
-for i, ryosmkfx in pairs(ryosmkfx_table) do
-    ryosmkfx.device:set_custom_lights(ryosmkfx.leds)
+        ryosmkfx_init_lights(devices.ryosmkfx[#devices.ryosmkfx])
+    end
 end
 
 -- event loop
 
 while true do
-    for i, ryosmkfx in pairs(ryosmkfx_table) do
-        local sdk, pressed = ryosmkfx.device:get_event_timed(SLOWDOWN)
+    for i, ryosmkfx in pairs(devices.ryosmkfx) do
+        local event = ryosmkfx.device:get_event_timed(SLOWDOWN)
 
-        if pressed then
-            ryosmkfx.ripples[#ryosmkfx.ripples + 1] = {
-                center = KEYS[sdk],
-                radius = 1
-            }
-        end
-
-        for i = #ryosmkfx.ripples, 1, -1 do
-            if ryosmkfx.ripples[i].radius <= MATRIX_COLS / KEY_WIDTH + #RIPPLE_COLORS then
-                ryosmkfx.ripples[i].radius = ryosmkfx.ripples[i].radius + 1
-            else
-                table.remove(ryosmkfx.ripples, i)
+        if event then
+            if event.type == "profile_start" then
+                ryosmkfx_init_lights(ryosmkfx)
             end
         end
 
-        if #ryosmkfx.ripples > 0 then
-            ryosmkfx.leds = table.shallow_copy(KEY_COLORS)
-
-            for _, ripple in pairs(ryosmkfx.ripples) do
-                for i, color in ipairs(RIPPLE_COLORS) do
-                    if i <= ripple.radius then
-                        leds = draw_circle(ripple.center, ripple.radius - i)
-                        for _, led in pairs(leds) do
-                            ryosmkfx.leds[led] = color
-                        end
+        if ryosmkfx.profile == 1 then
+            if event then
+                if event.type == "effect" then
+                    if event.action == "press" then
+                        ryosmkfx.ripples[#ryosmkfx.ripples + 1] = {
+                            center = KEYS[event.data],
+                            radius = 1
+                        }
                     end
                 end
             end
 
-            ryosmkfx.device:set_custom_lights(ryosmkfx.leds)
+            for i = #ryosmkfx.ripples, 1, -1 do
+                if ryosmkfx.ripples[i].radius <= MATRIX_COLS / KEY_WIDTH + #RIPPLE_COLORS then
+                    ryosmkfx.ripples[i].radius = ryosmkfx.ripples[i].radius + 1
+                else
+                    table.remove(ryosmkfx.ripples, i)
+                end
+            end
+
+            if #ryosmkfx.ripples > 0 then
+                ryosmkfx.leds = table.shallow_copy(KEY_COLORS)
+
+                for _, ripple in pairs(ryosmkfx.ripples) do
+                    for i, color in ipairs(RIPPLE_COLORS) do
+                        if i <= ripple.radius then
+                            leds = draw_circle(ripple.center, ripple.radius - i)
+                            for _, led in pairs(leds) do
+                                ryosmkfx.leds[led] = color
+                            end
+                        end
+                    end
+                end
+
+                ryosmkfx.device:set_custom_lights(ryosmkfx.leds)
+            end
         end
     end
 end
