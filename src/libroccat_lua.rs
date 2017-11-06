@@ -143,9 +143,11 @@ impl LuaUserData for RyosMkFx {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
         methods.add_method("name", |_, _, ()| Ok("ryos_mk_fx"));
 
-        methods.add_method("get_event", |lua, this, ()| loop {
-            if let Some(table) = this.get_event_table(lua)? {
-                return Ok(Some(table));
+        methods.add_method("get_event", |lua, this, ()| {
+            loop {
+                if let Some(table) = this.get_event_table(lua)? {
+                    return Ok(Some(table));
+                }
             }
         });
 

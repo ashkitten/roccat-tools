@@ -5,14 +5,14 @@ extern crate bitfield;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
+#[macro_use]
+extern crate hidraw_derive;
 extern crate libudev;
 #[macro_use]
 extern crate nix;
 extern crate tokio_core;
 extern crate tokio_file_unix;
 extern crate tokio_io;
-#[macro_use]
-extern crate hidraw_derive;
 
 pub mod errors {
     error_chain! {
@@ -55,10 +55,12 @@ pub fn find_devices() -> Result<Vec<Device>> {
                         enumerator
                             .scan_devices()
                             .unwrap()
-                            .filter_map(|device| if let Some(devnode) = device.devnode() {
-                                Some(devnode.to_path_buf())
-                            } else {
-                                None
+                            .filter_map(|device| {
+                                if let Some(devnode) = device.devnode() {
+                                    Some(devnode.to_path_buf())
+                                } else {
+                                    None
+                                }
                             })
                             .collect(),
                     )?)),
@@ -67,10 +69,12 @@ pub fn find_devices() -> Result<Vec<Device>> {
                         enumerator
                             .scan_devices()
                             .unwrap()
-                            .filter_map(|device| if let Some(devnode) = device.devnode() {
-                                Some(devnode.to_path_buf())
-                            } else {
-                                None
+                            .filter_map(|device| {
+                                if let Some(devnode) = device.devnode() {
+                                    Some(devnode.to_path_buf())
+                                } else {
+                                    None
+                                }
                             })
                             .collect(),
                     )?)),
@@ -79,21 +83,25 @@ pub fn find_devices() -> Result<Vec<Device>> {
                         enumerator
                             .scan_devices()
                             .unwrap()
-                            .filter_map(|device| if let Some(devnode) = device.devnode() {
-                                Some(devnode.to_path_buf())
-                            } else {
-                                None
+                            .filter_map(|device| {
+                                if let Some(devnode) = device.devnode() {
+                                    Some(devnode.to_path_buf())
+                                } else {
+                                    None
+                                }
                             })
                             .collect(),
                     )?)),
                     _ => None,
                 }.ok_or("Incompatible Roccat device".into())
             })
-            .filter_map(|device| if let Ok(device) = device {
-                Some(device)
-            } else {
-                println!("{}", device.err().unwrap());
-                None
+            .filter_map(|device| {
+                if let Ok(device) = device {
+                    Some(device)
+                } else {
+                    println!("{}", device.err().unwrap());
+                    None
+                }
             })
             .collect(),
     )

@@ -97,9 +97,8 @@ impl RyosMkFx {
 
     pub fn get_lights(&self, profile: u8) -> Result<Lights> {
         unsafe {
-            Control::new(profile, ControlRequest::Light as u8).write(
-                &self.get_interface(Interface::Keyboard)?,
-            )?;
+            Control::new(profile, ControlRequest::Light as u8)
+                .write(&self.get_interface(Interface::Keyboard)?)?;
             Control::check_write(&self.get_interface(Interface::Keyboard)?)?;
             Lights::read(&self.get_interface(Interface::Keyboard)?)
         }
@@ -129,13 +128,12 @@ impl RyosMkFx {
 
     pub fn get_custom_lights_active(&self) -> Result<bool> {
         unsafe {
-            Ok(match LightControl::read(
-                &self.get_interface(Interface::Keyboard)?,
-            )?
-                .state {
-                LightControlState::Custom => true,
-                LightControlState::Stored => false,
-            })
+            Ok(
+                match LightControl::read(&self.get_interface(Interface::Keyboard)?)?.state {
+                    LightControlState::Custom => true,
+                    LightControlState::Stored => false,
+                },
+            )
         }
     }
 
@@ -169,10 +167,8 @@ pub enum Interface {
 #[derive(HidrawRead, HidrawWrite, Debug)]
 #[repr(C, packed)]
 pub struct Profile {
-    #[hidraw_constant = "0x05"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x05"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     index: u8,
 }
 
@@ -189,10 +185,8 @@ impl Profile {
 #[derive(HidrawRead, Debug)]
 #[repr(C, packed)]
 pub struct DeviceInfo {
-    #[hidraw_constant = "0x0f"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x0f"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     firmware_version: u8,
     dfu_version: u8,
     led_firmware_version: u8,

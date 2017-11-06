@@ -20,8 +20,7 @@ pub enum ControlStatus {
 #[derive(HidrawRead, HidrawWrite)]
 #[repr(C, packed)]
 pub struct Control {
-    #[hidraw_constant = "0x04"]
-    _report_id: u8,
+    #[hidraw_constant = "0x04"] _report_id: u8,
     value: u8,
     request: u8,
 }
@@ -47,7 +46,9 @@ impl Control {
                 match ::std::mem::transmute(control.value) {
                     ControlStatus::Ok => return Ok(()),
                     ControlStatus::Busy => (),
-                    ControlStatus::Critical0 | ControlStatus::Critical1 => bail!("Got critical status"),
+                    ControlStatus::Critical0 | ControlStatus::Critical1 => {
+                        bail!("Got critical status")
+                    }
                     ControlStatus::Invalid => bail!("Got unknown status"),
                 }
             }

@@ -1,17 +1,18 @@
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 extern crate proc_macro;
+#[macro_use]
+extern crate quote;
 extern crate syn;
-#[macro_use] extern crate quote;
 
 use proc_macro::TokenStream;
-use syn::{DeriveInput,Ident,Expr,Body,VariantData,Field,MetaItem,Lit};
+use syn::{Body, DeriveInput, Expr, Field, Ident, Lit, MetaItem, VariantData};
 
-#[proc_macro_derive(HidrawRead,attributes(hidraw_constant))]
+#[proc_macro_derive(HidrawRead, attributes(hidraw_constant))]
 pub fn derive_hid_read(input: TokenStream) -> TokenStream {
     let input = syn::parse_derive_input(&input.to_string()).unwrap();
     let name = &input.ident;
     let (const_field_names, const_field_vals) = get_const_fields(&input);
-    
+
     let output = quote! {
         impl #name {
 
@@ -46,11 +47,11 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
     output.parse().unwrap()
 }
 
-#[proc_macro_derive(HidrawWrite,attributes(hidraw_constant))]
+#[proc_macro_derive(HidrawWrite, attributes(hidraw_constant))]
 pub fn derive_hid_write(input: TokenStream) -> TokenStream {
     let input = syn::parse_derive_input(&input.to_string()).unwrap();
     let name = &input.ident;
-    
+
     let output = quote! {
         impl #name {
 
@@ -70,7 +71,7 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
                         Err(other) => return Err(other.into()),
                     }
                 }
-                
+
                 Ok(())
             }
 
@@ -82,32 +83,31 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
 
 fn get_const_fields(input: &DeriveInput) -> (Vec<Ident>, Vec<Expr>) {
     match input.body {
-        Body::Struct(VariantData::Struct(ref fields)) =>
-            fields
-                .iter()
-                .flat_map(get_const_field)
-                .unzip()
-        ,
+        Body::Struct(VariantData::Struct(ref fields)) => {
+            fields.iter().flat_map(get_const_field).unzip()
+        }
         _ => panic!("Hidraw derive only supports structs"),
     }
 }
 
 fn get_const_field(field: &Field) -> Option<(Ident, Expr)> {
-    let name = field.ident.as_ref().expect("hidraw: Only named fields are supported");
+    let name = field
+        .ident
+        .as_ref()
+        .expect("hidraw: Only named fields are supported");
 
-    field.attrs
+    field
+        .attrs
         .iter()
         .flat_map(|attr| match attr.value {
-            MetaItem::NameValue(ref ident, ref lit) if ident == "hidraw_constant" => {
-                match *lit {
-                    Lit::Str(ref str, _) => {
-                        let expr = syn::parse_expr(str).unwrap();
-                        Some((name.clone(), expr))
-                    },
-                    _ => panic!("hidraw: Unsupported constant literal")
+            MetaItem::NameValue(ref ident, ref lit) if ident == "hidraw_constant" => match *lit {
+                Lit::Str(ref str, _) => {
+                    let expr = syn::parse_expr(str).unwrap();
+                    Some((name.clone(), expr))
                 }
+                _ => panic!("hidraw: Unsupported constant literal"),
             },
-            _ => None
+            _ => None,
         })
         .next()
 }

@@ -25,9 +25,7 @@ impl Tyon {
 
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8> {
-        unsafe {
-            Ok(Profile::read(&self.get_interface(Interface::Mouse))?.index + 1)
-        }
+        unsafe { Ok(Profile::read(&self.get_interface(Interface::Mouse))?.index + 1) }
     }
 
     /// Sets the current profile
@@ -57,10 +55,8 @@ pub enum Interface {
 #[derive(HidrawRead, HidrawWrite, Debug)]
 #[repr(C, packed)]
 pub struct Profile {
-    #[hidraw_constant = "0x05"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x05"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     index: u8,
 }
 
