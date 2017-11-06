@@ -358,5 +358,15 @@ struct Tyon(libroccat::device::Tyon);
 impl LuaUserData for Tyon {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
         methods.add_method("name", |_, _, ()| Ok("tyon"));
+
+        methods.add_method(
+            "get_profile",
+            |_, this, ()| Ok(this.0.get_profile().unwrap()),
+        );
+
+        methods.add_method("set_profile", |_, this, profile| {
+            this.0.set_profile(profile).unwrap();
+            Ok(())
+        });
     }
 }

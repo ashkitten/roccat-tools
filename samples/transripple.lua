@@ -180,9 +180,24 @@ function ryosmkfx_init_lights(ryosmkfx)
     end
 end
 
+function match_active_window_class(match_class)
+    -- I'd like to be able to avoid shelling out to do this, but I can't seem to find
+    -- a good way to bind to xlib or xcb in lua
+
+    local handle = io.popen("xprop -id `xdotool getactivewindow` WM_CLASS")
+    local result = handle:read("*a")
+    handle:close()
+
+    local instance, class = string.match(result, '"(.*)", "(.*)"')
+
+    if class == nil then return false end
+    return string.match(class, match_class)
+end
+
+
 -- init
 
-devices = { ryosmkfx = {} }
+devices = { ryosmkfx = {}, tyon = {} }
 light_position_matrix = init_light_position_matrix()
 
 for i, device in ipairs(libroccat.find_devices()) do
@@ -196,11 +211,27 @@ for i, device in ipairs(libroccat.find_devices()) do
 
         ryosmkfx_init_lights(devices.ryosmkfx[#devices.ryosmkfx])
     end
+
+    if device:name() == "tyon" then
+        devices.tyon[#devices.tyon + 1] = {
+            device = device,
+        }
+    end
 end
 
 -- event loop
 
 while true do
+    if match_active_window_class("Alacritty") then
+        for i, tyon in pairs(devices.tyon) do
+            tyon.device:set_profile(2)
+        end
+    else
+        for i, tyon in pairs(devices.tyon) do
+            tyon.device:set_profile(1)
+        end
+    end
+
     for i, ryosmkfx in pairs(devices.ryosmkfx) do
         local event = ryosmkfx.device:get_event_timed(SLOWDOWN)
 
