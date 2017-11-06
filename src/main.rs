@@ -36,7 +36,7 @@ quick_main!(|| -> Result<()> {
         .about("Controls Roccat devices")
         .args_from_usage("
             -l, --list               'List attached devices'
-            -s, --script <script>... 'Run a script'
+            -s, --script [script]... 'Run a script'
         ")
         .subcommand(SubCommand::with_name("get")
             .about("Get a property of a device")
