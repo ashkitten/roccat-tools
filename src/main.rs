@@ -25,6 +25,7 @@ mod errors {
 }
 
 use clap::{App, SubCommand};
+use std::thread;
 
 use errors::*;
 
@@ -34,8 +35,8 @@ quick_main!(|| -> Result<()> {
         .author("Ash Lea <ashlea@protonmail.com>")
         .about("Controls Roccat devices")
         .args_from_usage("
-            -l, --list            'List attached devices'
-            -s, --script <script> 'Run a script'
+            -l, --list               'List attached devices'
+            -s, --script <script>... 'Run a script'
         ")
         .subcommand(SubCommand::with_name("get")
             .about("Get a property of a device")
@@ -61,9 +62,22 @@ quick_main!(|| -> Result<()> {
         std::process::exit(0);
     }
 
-    if let Some(path) = matches.value_of("script") {
-        libroccat_lua::run_script(path)?;
-        std::process::exit(0);
+    if matches.is_present("script") {
+        let mut join_handles = Vec::new();
+
+        for path in matches.values_of("script").unwrap() {
+            let path = path.to_string();
+            join_handles.push(thread::spawn(
+                move || libroccat_lua::run_script(&path).unwrap(),
+            ));
+        }
+
+        for handle in join_handles {
+            match handle.join() {
+                Err(err) => bail!("Thread panicked: {:?}", err),
+                _ => (),
+            }
+        }
     }
 
     if let Some(matches) = matches.subcommand_matches("get") {
@@ -83,7 +97,7 @@ quick_main!(|| -> Result<()> {
                 Some(_) => bail!("Invalid property"),
                 None => unreachable!(),
             }
-            );
+        );
     }
 
     if let Some(matches) = matches.subcommand_matches("set") {

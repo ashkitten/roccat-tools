@@ -53,76 +53,89 @@ struct RyosMkFx(libroccat::device::RyosMkFx);
 
 impl RyosMkFx {
     fn get_event_table<'lua>(&self, lua: &'lua Lua) -> LuaResult<Option<LuaTable<'lua>>> {
-        use libroccat::device::ryosmkfx::{EventType, EventRadSubtype, EventKeyAction, EventLiveRecordingAction};
+        use libroccat::device::ryosmkfx::{EventKeyAction, EventLiveRecordingAction,
+                                          EventRadSubtype, EventType};
 
         if let Some(event) = self.0.get_event() {
             let table = lua.create_table();
             if event.type_ == EventType::Rad {
-                table.set("subtype", match unsafe { event.subtype.rad } {
-                    EventRadSubtype::W => "w",
-                    EventRadSubtype::A => "a",
-                    EventRadSubtype::S => "s",
-                    EventRadSubtype::D => "d",
-                    EventRadSubtype::Thumbster1 => "thumbster_1",
-                    EventRadSubtype::Thumbster2 => "thumbster_2",
-                    EventRadSubtype::Thumbster3 => "thumbster_3",
-                    EventRadSubtype::Easyshift => "easyshift",
-                    EventRadSubtype::Multimedia => "multimedia",
-                    EventRadSubtype::M1 => "m1",
-                    EventRadSubtype::M2 => "m2",
-                    EventRadSubtype::M3 => "m3",
-                    EventRadSubtype::M4 => "m4",
-                    EventRadSubtype::M5 => "m5",
-                    EventRadSubtype::MacroShortcut => "macro_shortcut",
-                    EventRadSubtype::Talk => "talk",
-                    EventRadSubtype::MacroLifeRec => "macro_life_rec",
-                    EventRadSubtype::Backlight => "backlight",
-                    EventRadSubtype::Total => "total",
-                })?;
+                table.set(
+                    "subtype",
+                    match unsafe { event.subtype.rad } {
+                        EventRadSubtype::W => "w",
+                        EventRadSubtype::A => "a",
+                        EventRadSubtype::S => "s",
+                        EventRadSubtype::D => "d",
+                        EventRadSubtype::Thumbster1 => "thumbster_1",
+                        EventRadSubtype::Thumbster2 => "thumbster_2",
+                        EventRadSubtype::Thumbster3 => "thumbster_3",
+                        EventRadSubtype::Easyshift => "easyshift",
+                        EventRadSubtype::Multimedia => "multimedia",
+                        EventRadSubtype::M1 => "m1",
+                        EventRadSubtype::M2 => "m2",
+                        EventRadSubtype::M3 => "m3",
+                        EventRadSubtype::M4 => "m4",
+                        EventRadSubtype::M5 => "m5",
+                        EventRadSubtype::MacroShortcut => "macro_shortcut",
+                        EventRadSubtype::Talk => "talk",
+                        EventRadSubtype::MacroLifeRec => "macro_life_rec",
+                        EventRadSubtype::Backlight => "backlight",
+                        EventRadSubtype::Total => "total",
+                    },
+                )?;
             }
-            table.set("type", match event.type_ {
-                EventType::Unknown => "unknown",
-                EventType::ProfileStart => "profile_start",
-                EventType::Profile => "profile",
-                EventType::Macro => "macro",
-                EventType::LiveRecording => "live_recording",
-                EventType::Quicklaunch => "quicklaunch",
-                EventType::Easyshift => "easyshift",
-                EventType::Multimedia => "multimedia",
-                EventType::Backlight => "backlight",
-                EventType::TimerStart => "timer_start",
-                EventType::TimerStop => "timer_stop",
-                EventType::OpenDriver => "open_driver",
-                EventType::LedMacro => "led_macro",
-                EventType::Rad => "rad",
-                EventType::Effect => "effect",
-                EventType::Layer => "layer",
-                EventType::EasyshiftSelf => "easyshift_self",
-                EventType::Talk => "talk",
-            })?;
-            table.set("data", match event.type_ {
-                EventType::Effect => event.sdk_index(),
-                _ => event.data,
-            })?;
+            table.set(
+                "type",
+                match event.type_ {
+                    EventType::Unknown => "unknown",
+                    EventType::ProfileStart => "profile_start",
+                    EventType::Profile => "profile",
+                    EventType::Macro => "macro",
+                    EventType::LiveRecording => "live_recording",
+                    EventType::Quicklaunch => "quicklaunch",
+                    EventType::Easyshift => "easyshift",
+                    EventType::Multimedia => "multimedia",
+                    EventType::Backlight => "backlight",
+                    EventType::TimerStart => "timer_start",
+                    EventType::TimerStop => "timer_stop",
+                    EventType::OpenDriver => "open_driver",
+                    EventType::LedMacro => "led_macro",
+                    EventType::Rad => "rad",
+                    EventType::Effect => "effect",
+                    EventType::Layer => "layer",
+                    EventType::EasyshiftSelf => "easyshift_self",
+                    EventType::Talk => "talk",
+                },
+            )?;
+            table.set(
+                "data",
+                match event.type_ {
+                    EventType::Effect => event.sdk_index(),
+                    _ => event.data,
+                },
+            )?;
             if event.type_ == EventType::Effect || event.type_ == EventType::LiveRecording {
-                table.set("action", match event.type_ {
-                    EventType::Effect => match unsafe { event.action.key } {
-                        EventKeyAction::Release => "release",
-                        EventKeyAction::Press => "press",
-                    }
-                    EventType::LiveRecording => match unsafe { event.action.live_recording } {
-                        EventLiveRecordingAction::Start => "start",
-                        EventLiveRecordingAction::MacroKeySelected => "macro_key_selected",
-                        EventLiveRecordingAction::EndSuccess => "end_success",
-                        EventLiveRecordingAction::EndAbort => "end_abort",
-                        EventLiveRecordingAction::InvalidKey => "invalid_key",
-                    }
-                    _ => unreachable!(),
-                })?;
+                table.set(
+                    "action",
+                    match event.type_ {
+                        EventType::Effect => match unsafe { event.action.key } {
+                            EventKeyAction::Release => "release",
+                            EventKeyAction::Press => "press",
+                        },
+                        EventType::LiveRecording => match unsafe { event.action.live_recording } {
+                            EventLiveRecordingAction::Start => "start",
+                            EventLiveRecordingAction::MacroKeySelected => "macro_key_selected",
+                            EventLiveRecordingAction::EndSuccess => "end_success",
+                            EventLiveRecordingAction::EndAbort => "end_abort",
+                            EventLiveRecordingAction::InvalidKey => "invalid_key",
+                        },
+                        _ => unreachable!(),
+                    },
+                )?;
             }
             return Ok(Some(table));
         }
-        return Ok(None)
+        return Ok(None);
     }
 }
 
@@ -130,11 +143,9 @@ impl LuaUserData for RyosMkFx {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
         methods.add_method("name", |_, _, ()| Ok("ryos_mk_fx"));
 
-        methods.add_method("get_event", |lua, this, ()| {
-            loop {
-                if let Some(table) = this.get_event_table(lua)? {
-                    return Ok(Some(table))
-                }
+        methods.add_method("get_event", |lua, this, ()| loop {
+            if let Some(table) = this.get_event_table(lua)? {
+                return Ok(Some(table));
             }
         });
 
@@ -144,7 +155,7 @@ impl LuaUserData for RyosMkFx {
 
             while start.elapsed() < duration {
                 if let Some(table) = this.get_event_table(lua)? {
-                    return Ok(Some(table))
+                    return Ok(Some(table));
                 }
             }
 
