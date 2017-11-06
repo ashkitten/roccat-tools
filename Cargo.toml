@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Ash Levy <ashlea@protonmail.com>"]
 
 [workspace]
-members = ["libroccat", "bitfield"]
+members = ["libroccat", "bitfield", "libroccat/hidraw-derive"]
 
 [dependencies]
 libroccat = { path = "libroccat" }

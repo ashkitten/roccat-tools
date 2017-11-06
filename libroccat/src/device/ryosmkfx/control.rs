@@ -17,29 +17,39 @@ pub enum ControlStatus {
     Critical1 = 0x04, // used by Ryos MK
 }
 
-impl_hidraw! {
-    readwrite;
-    Control {
-        @constant _report_id: u8 = 0x04,
-        value: u8,
-        request: u8,
-    }
+#[derive(HidrawRead, HidrawWrite)]
+#[repr(C, packed)]
+pub struct Control {
+    #[hidraw_constant = "0x04"]
+    _report_id: u8,
+    value: u8,
+    request: u8,
 }
 
 impl Control {
+    pub fn new(value: u8, request: u8) -> Self {
+        Self {
+            _report_id: 0x04,
+            value,
+            request,
+        }
+    }
+
     pub fn check_write(interface: &File) -> Result<()> {
-        loop {
-            use std::thread::sleep;
-            use std::time::Duration;
+        unsafe {
+            loop {
+                use std::thread::sleep;
+                use std::time::Duration;
 
-            sleep(Duration::from_millis(50));
+                sleep(Duration::from_millis(50));
 
-            let control = Self::read(interface)?;
-            match unsafe { ::std::mem::transmute(control.value) } {
-                ControlStatus::Ok => return Ok(()),
-                ControlStatus::Busy => (),
-                ControlStatus::Critical0 | ControlStatus::Critical1 => bail!("Got critical status"),
-                ControlStatus::Invalid => bail!("Got unknown status"),
+                let control = Self::read(interface)?;
+                match ::std::mem::transmute(control.value) {
+                    ControlStatus::Ok => return Ok(()),
+                    ControlStatus::Busy => (),
+                    ControlStatus::Critical0 | ControlStatus::Critical1 => bail!("Got critical status"),
+                    ControlStatus::Invalid => bail!("Got unknown status"),
+                }
             }
         }
     }

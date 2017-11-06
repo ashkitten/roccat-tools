@@ -72,84 +72,87 @@ impl RyosMkFx {
 
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8> {
-        // Numbering starts from 32 for some reason in the API
-        Ok(Profile::read(&self.get_interface(Interface::Keyboard)?)?.index - 31)
+        unsafe {
+            // Numbering starts from 32 for some reason in the API
+            Ok(Profile::read(&self.get_interface(Interface::Keyboard)?)?.index - 31)
+        }
     }
 
     /// Sets the current profile
     pub fn set_profile(&self, index: u8) -> Result<()> {
-        ensure!(
-            index >= 1 && index <= 5,
-            "Profile {} is out of range",
-            index
-        );
-        // Numbering starts from 32 for some reason in the API
-        Profile::write(
-            &self.get_interface(Interface::Keyboard)?,
-            &Profile::new(index + 31),
-        )
+        unsafe {
+            ensure!(
+                index >= 1 && index <= 5,
+                "Profile {} is out of range",
+                index
+            );
+            // Numbering starts from 32 for some reason in the API
+            Profile::new(index + 31).write(&self.get_interface(Interface::Keyboard)?)
+        }
     }
 
     pub fn get_info(&self) -> Result<DeviceInfo> {
-        DeviceInfo::read(&self.get_interface(Interface::Keyboard)?)
+        unsafe { DeviceInfo::read(&self.get_interface(Interface::Keyboard)?) }
     }
 
     pub fn get_lights(&self, profile: u8) -> Result<Lights> {
-        Control::write(
-            &self.get_interface(Interface::Keyboard)?,
-            &Control::new(profile, ControlRequest::Light as u8),
-        )?;
-        Control::check_write(&self.get_interface(Interface::Keyboard)?)?;
-        Lights::read(&self.get_interface(Interface::Keyboard)?)
+        unsafe {
+            Control::new(profile, ControlRequest::Light as u8).write(
+                &self.get_interface(Interface::Keyboard)?,
+            )?;
+            Control::check_write(&self.get_interface(Interface::Keyboard)?)?;
+            Lights::read(&self.get_interface(Interface::Keyboard)?)
+        }
     }
 
     pub fn set_lights(&self, lights: &Lights) -> Result<()> {
-        let mut data = lights.clone();
-        // Bytesum is 2 bytes, we shouldn't include that
-        let bytes: [u8; ::std::mem::size_of::<Lights>() - 2] =
-            unsafe { ::std::mem::transmute_copy(&data) };
-        data.bytesum = bytes.iter().map(|b| *b as u16).sum();
-        Lights::write(&self.get_interface(Interface::Keyboard)?, &data)
+        unsafe {
+            let mut data = lights.clone();
+            // Bytesum is 2 bytes, we shouldn't include that
+            let bytes: [u8; ::std::mem::size_of::<Lights>() - 2] =
+                ::std::mem::transmute_copy(&data);
+            data.bytesum = bytes.iter().map(|b| *b as u16).sum();
+            data.write(&self.get_interface(Interface::Keyboard)?)
+        }
     }
 
     pub fn set_custom_lights_active(&self, active: bool) -> Result<()> {
-        let state = if active {
-            LightControlState::Custom
-        } else {
-            LightControlState::Stored
-        };
-        LightControl::write(
-            &self.get_interface(Interface::Keyboard)?,
-            &LightControl::new(
-                state,
-                Default::default(),
-                Default::default(),
-                Default::default(),
-            ),
-        )
+        unsafe {
+            let state = if active {
+                LightControlState::Custom
+            } else {
+                LightControlState::Stored
+            };
+            LightControl::new(state).write(&self.get_interface(Interface::Keyboard)?)
+        }
     }
 
     pub fn get_custom_lights_active(&self) -> Result<bool> {
-        Ok(
-            match LightControl::read(&self.get_interface(Interface::Keyboard)?)?.state {
+        unsafe {
+            Ok(match LightControl::read(
+                &self.get_interface(Interface::Keyboard)?,
+            )?
+                .state {
                 LightControlState::Custom => true,
                 LightControlState::Stored => false,
-            },
-        )
+            })
+        }
     }
 
     pub fn get_custom_lights(&self) -> Result<CustomLights> {
-        CustomLights::read(&self.get_interface(Interface::Keyboard)?)
+        unsafe { CustomLights::read(&self.get_interface(Interface::Keyboard)?) }
     }
 
     pub fn set_custom_lights(&self, custom_lights: &CustomLights) -> Result<()> {
-        let mut data = custom_lights.clone();
-        // Bytesum is 2 bytes, we shouldn't include that
-        let bytes: [u8; ::std::mem::size_of::<CustomLights>() - 2] =
-            unsafe { ::std::mem::transmute_copy(&data) };
-        data.bytesum = bytes.iter().map(|b| *b as u16).sum();
-        CustomLights::write(&self.get_interface(Interface::Keyboard)?, &data)?;
-        LightControl::check_write(&self.get_interface(Interface::Keyboard)?)
+        unsafe {
+            let mut data = custom_lights.clone();
+            // Bytesum is 2 bytes, we shouldn't include that
+            let bytes: [u8; ::std::mem::size_of::<CustomLights>() - 2] =
+                ::std::mem::transmute_copy(&data);
+            data.bytesum = bytes.iter().map(|b| *b as u16).sum();
+            data.write(&self.get_interface(Interface::Keyboard)?)?;
+            LightControl::check_write(&self.get_interface(Interface::Keyboard)?)
+        }
     }
 
     pub fn get_event(&self) -> Option<Event> {
@@ -163,25 +166,35 @@ pub enum Interface {
     Mouse = 1,
 }
 
-impl_hidraw! {
-    readwrite;
-    #[derive(Debug)]
-    Profile {
-        @constant _report_id: u8 = 0x05,
-        @constant _size: u8 = ::std::mem::size_of::<Self>() as u8,
-        index: u8,
+#[derive(HidrawRead, HidrawWrite, Debug)]
+#[repr(C, packed)]
+pub struct Profile {
+    #[hidraw_constant = "0x05"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
+    _size: u8,
+    index: u8,
+}
+
+impl Profile {
+    fn new(index: u8) -> Self {
+        Profile {
+            _report_id: 0x05,
+            _size: ::std::mem::size_of::<Self>() as u8,
+            index: index,
+        }
     }
 }
 
-impl_hidraw! {
-    read;
-    #[derive(Debug)]
-    DeviceInfo {
-        @constant _report_id: u8 = 0x0f,
-        @constant _size: u8 = ::std::mem::size_of::<Self>() as u8,
-        firmware_version: u8,
-        dfu_version: u8,
-        led_firmware_version: u8,
-        unknown: [u8; 2],
-    }
+#[derive(HidrawRead, Debug)]
+#[repr(C, packed)]
+pub struct DeviceInfo {
+    #[hidraw_constant = "0x0f"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
+    _size: u8,
+    firmware_version: u8,
+    dfu_version: u8,
+    led_firmware_version: u8,
+    unknown: [u8; 2],
 }
