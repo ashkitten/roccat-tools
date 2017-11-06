@@ -25,20 +25,21 @@ impl Tyon {
 
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8> {
-        Ok(Profile::read(&self.get_interface(Interface::Mouse))?.index + 1)
+        unsafe {
+            Ok(Profile::read(&self.get_interface(Interface::Mouse))?.index + 1)
+        }
     }
 
     /// Sets the current profile
     pub fn set_profile(&self, index: u8) -> Result<()> {
-        ensure!(
-            index >= 1 && index <= 5,
-            "Profile {} is out of range",
-            index
-        );
-        Profile::write(
-            &self.get_interface(Interface::Mouse),
-            &Profile::new(index - 1),
-        )
+        unsafe {
+            ensure!(
+                index >= 1 && index <= 5,
+                "Profile {} is out of range",
+                index
+            );
+            Profile::new(index - 1).write(&self.get_interface(Interface::Mouse))
+        }
     }
 
     pub fn get_common_name<'a>() -> &'a str {
@@ -53,12 +54,22 @@ pub enum Interface {
     Misc = 3,
 }
 
-impl_hidraw! {
-    readwrite;
-    #[derive(Debug)]
-    Profile {
-        @constant _report_id: u8 = 0x05,
-        @constant _size: u8 = ::std::mem::size_of::<Self>() as u8,
-        index: u8,
+#[derive(HidrawRead, HidrawWrite, Debug)]
+#[repr(C, packed)]
+pub struct Profile {
+    #[hidraw_constant = "0x05"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
+    _size: u8,
+    index: u8,
+}
+
+impl Profile {
+    fn new(index: u8) -> Self {
+        Profile {
+            _report_id: 0x05,
+            _size: ::std::mem::size_of::<Self>() as u8,
+            index: index,
+        }
     }
 }

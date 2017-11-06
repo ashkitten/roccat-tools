@@ -63,28 +63,28 @@ impl Default for LightDimnessType {
     }
 }
 
-impl_hidraw! {
-    readwrite;
-    #[derive(Debug)]
-    Lights {
-        @constant _report_id: u8 = 0x0d,
-        @constant _size: u8 = ::std::mem::size_of::<Self>() as u8,
-        profile: u8,
-        brightness: u8, // 0-5
-        dimness: u8, // 0-5
-        timeout: u8, // minutes
-        mode: LightMode,
-        effect: LightEffect,
-        unknown0: u8, // 0x00
-        effect_speed: u8, // 1-3
-        unknown1: u8, // 0x00
-        led_feedback: LightLedFeedback,
-        dimness_type: LightDimnessType,
-        unknown2: u8, // 0x1e
-        red: u16,
-        green: u16,
-        blue: u16,
-        unused: [u8; 10],
-        bytesum: u16,
-    }
+#[derive(HidrawRead, HidrawWrite, Debug, Clone)]
+#[repr(C, packed)]
+pub struct Lights {
+    #[hidraw_constant = "0x0d"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
+    _size: u8,
+    profile: u8,
+    brightness: u8, // 0-5
+    dimness: u8, // 0-5
+    timeout: u8, // minutes
+    mode: LightMode,
+    effect: LightEffect,
+    unknown0: u8, // 0x00
+    effect_speed: u8, // 1-3
+    unknown1: u8, // 0x00
+    led_feedback: LightLedFeedback,
+    dimness_type: LightDimnessType,
+    unknown2: u8, // 0x1e
+    red: u16,
+    green: u16,
+    blue: u16,
+    unused: [u8; 10],
+    pub bytesum: u16,
 }

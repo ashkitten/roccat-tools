@@ -29,32 +29,45 @@ impl Default for LightControlWriteCheck {
     }
 }
 
-impl_hidraw! {
-    readwrite;
-    #[derive(Debug)]
-    LightControl {
-        @constant _report_id: u8 = 0x13,
-        @constant _size: u8 = ::std::mem::size_of::<Self> as u8,
-        state: LightControlState,
-        unknown0: [u8; 3],
-        write_check: LightControlWriteCheck,
-        unknown1: u8,
-    }
+#[derive(HidrawRead, HidrawWrite, Debug)]
+#[repr(C, packed)]
+pub struct LightControl {
+    #[hidraw_constant = "0x13"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self> as u8"]
+    _size: u8,
+    pub state: LightControlState,
+    unknown0: [u8; 3],
+    write_check: LightControlWriteCheck,
+    unknown1: u8,
 }
 
 impl LightControl {
+    pub fn new(state: LightControlState) -> Self {
+        Self {
+            _report_id: 0x13,
+            _size: ::std::mem::size_of::<Self> as u8,
+            state,
+            unknown0: Default::default(),
+            write_check: Default::default(),
+            unknown1: Default::default(),
+        }
+    }
+
     pub fn check_write(file: &File) -> Result<()> {
-        loop {
-            use std::thread::sleep;
-            use std::time::Duration;
+        unsafe {
+            loop {
+                use std::thread::sleep;
+                use std::time::Duration;
 
-            sleep(Duration::from_millis(50));
+                sleep(Duration::from_millis(50));
 
-            let control = Self::read(file)?;
-            match unsafe { ::std::mem::transmute(control.write_check) } {
-                LightControlWriteCheck::Ok => return Ok(()),
-                LightControlWriteCheck::Busy => (),
-                err => bail!("Write check returned {:?}", err),
+                let control = Self::read(file)?;
+                match ::std::mem::transmute(control.write_check) {
+                    LightControlWriteCheck::Ok => return Ok(()),
+                    LightControlWriteCheck::Busy => (),
+                    err => bail!("Write check returned {:?}", err),
+                }
             }
         }
     }

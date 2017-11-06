@@ -11,6 +11,8 @@ extern crate nix;
 extern crate tokio_core;
 extern crate tokio_file_unix;
 extern crate tokio_io;
+#[macro_use]
+extern crate hidraw_derive;
 
 pub mod errors {
     error_chain! {
@@ -21,9 +23,6 @@ pub mod errors {
         }
     }
 }
-
-#[macro_use]
-mod macros;
 
 pub mod device;
 
