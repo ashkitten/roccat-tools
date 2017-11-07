@@ -4,14 +4,22 @@ function match_active_window_class(match_class)
     -- I'd like to be able to avoid shelling out to do this, but I can't seem to find
     -- a good way to bind to xlib or xcb in lua
 
-    local handle = io.popen("xprop -id `xdotool getactivewindow` WM_CLASS")
-    local result = handle:read("*a")
+    local handle = io.popen("xdotool getactivewindow")
+    local result = handle:read("*l")
     handle:close()
 
-    local instance, class = string.match(result, '"(.*)", "(.*)"')
+    if result then
+        local command = string.gsub("xprop -id {} WM_CLASS", "{}", result)
+        local handle = io.popen(command)
+        local result = handle:read("*l")
+        handle:close()
 
-    if class == nil then return false end
-    return string.match(class, match_class)
+        local instance, class = string.match(result, '"(.*)", "(.*)"')
+
+        if class == nil then return false end
+        return string.match(class, match_class)
+    end
+    return false
 end
 
 -- init
