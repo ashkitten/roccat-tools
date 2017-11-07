@@ -10,11 +10,7 @@ extern crate hidraw_derive;
 extern crate libudev;
 #[macro_use]
 extern crate nix;
-extern crate tokio_core;
-extern crate tokio_file_unix;
-extern crate tokio_io;
 
-mod serialize;
 pub mod device;
 pub mod errors {
     error_chain! {
