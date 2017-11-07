@@ -62,5 +62,6 @@ pub struct Lights {
     pub green: u16,
     pub blue: u16,
     pub unused: [u8; 10],
-    pub bytesum: u16,
+    #[hidraw_bytesum]
+    _bytesum: u16,
 }

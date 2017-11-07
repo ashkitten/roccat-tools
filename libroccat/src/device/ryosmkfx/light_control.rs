@@ -34,7 +34,7 @@ impl LightControl {
     pub fn new(state: LightControlState) -> Self {
         Self {
             state,
-            .. unsafe { ::std::mem::uninitialized() }
+            ..unsafe { ::std::mem::uninitialized() }
         }
     }
 

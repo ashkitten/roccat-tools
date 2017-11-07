@@ -382,14 +382,15 @@ pub struct CustomLights {
     #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
     _size: u8,
     pub light_layer: LightLayer,
-    pub bytesum: u16,
+    #[hidraw_bytesum]
+    _bytesum: u16,
 }
 
 impl CustomLights {
     pub fn new(light_layer: LightLayer) -> Self {
         Self {
             light_layer,
-            .. unsafe { ::std::mem::uninitialized() }
+            ..unsafe { ::std::mem::uninitialized() }
         }
     }
 }

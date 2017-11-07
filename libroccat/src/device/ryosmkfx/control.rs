@@ -31,7 +31,7 @@ impl Control {
         Self {
             value,
             request,
-            .. unsafe { ::std::mem::uninitialized() }
+            ..unsafe { ::std::mem::uninitialized() }
         }
     }
 

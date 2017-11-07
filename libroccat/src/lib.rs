@@ -1,5 +1,4 @@
-#![feature(const_size_of)]
-#![feature(try_from)]
+#![feature(const_size_of, try_from, type_ascription)]
 
 extern crate bitfield;
 #[macro_use]

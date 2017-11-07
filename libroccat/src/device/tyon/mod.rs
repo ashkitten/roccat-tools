@@ -66,7 +66,7 @@ impl Profile {
     fn new(index: u8) -> Self {
         Profile {
             index: index,
-            .. unsafe { ::std::mem::uninitialized() }
+            ..unsafe { ::std::mem::uninitialized() }
         }
     }
 }

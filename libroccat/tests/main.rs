@@ -37,14 +37,13 @@ fn ryosmkfx() {
                 data.set_key_green(i, (i as f32 * 255.0 / 120.0).min(255.0) as u8);
                 data.set_key_blue(i, (i as f32 * 255.0 / 120.0).min(255.0) as u8);
                 device
-                    .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data), 0))
+                    .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data)))
                     .unwrap();
-                std::thread::sleep(std::time::Duration::from_millis(60 - i as u64 / 2));
             }
             for i in 0..10 {
                 data.set_all_states(i % 2 == 0);
                 device
-                    .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data), 0))
+                    .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data)))
                     .unwrap();
                 std::thread::sleep(std::time::Duration::from_millis(100));
             }
