@@ -9,24 +9,12 @@ pub enum LightControlState {
     Custom = 0x01,
 }
 
-impl Default for LightControlState {
-    fn default() -> Self {
-        LightControlState::Stored
-    }
-}
-
 #[derive(Clone, Debug)]
 #[repr(u8)]
 pub enum LightControlWriteCheck {
     Ok = 0x01,
     Invalid = 0x02,
     Busy = 0x03,
-}
-
-impl Default for LightControlWriteCheck {
-    fn default() -> Self {
-        LightControlWriteCheck::Ok
-    }
 }
 
 #[derive(HidrawRead, HidrawWrite, Debug)]
@@ -45,12 +33,8 @@ pub struct LightControl {
 impl LightControl {
     pub fn new(state: LightControlState) -> Self {
         Self {
-            _report_id: 0x13,
-            _size: ::std::mem::size_of::<Self> as u8,
             state,
-            unknown0: Default::default(),
-            write_check: Default::default(),
-            unknown1: Default::default(),
+            .. unsafe { ::std::mem::uninitialized() }
         }
     }
 

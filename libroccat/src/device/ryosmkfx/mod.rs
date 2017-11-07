@@ -97,10 +97,18 @@ impl RyosMkFx {
 
     pub fn get_lights(&self, profile: u8) -> Result<Lights> {
         unsafe {
-            Control::new(profile, ControlRequest::Light as u8)
-                .write(&self.get_interface(Interface::Keyboard)?)?;
-            Control::check_write(&self.get_interface(Interface::Keyboard)?)?;
-            Lights::read(&self.get_interface(Interface::Keyboard)?)
+            loop {
+                Control::new(profile, ControlRequest::Light as u8)
+                    .write(&self.get_interface(Interface::Keyboard)?)?;
+                Control::check_write(&self.get_interface(Interface::Keyboard)?)?;
+
+                let lights = Lights::read(&self.get_interface(Interface::Keyboard)?)?;
+                const bytes_size: usize = ::std::mem::size_of::<Lights> - 2;
+                let bytes: [u8; bytes_size] = ::std::mem::transmute_copy(&custom_lights);
+                if bytes.iter().map(|b| *b as u16).sum() == lights.bytesum {
+                    return Some(lights);
+                }
+            }
         }
     }
 
@@ -138,15 +146,24 @@ impl RyosMkFx {
     }
 
     pub fn get_custom_lights(&self) -> Result<CustomLights> {
-        unsafe { CustomLights::read(&self.get_interface(Interface::Keyboard)?) }
+        unsafe {
+            loop {
+                let custom_lights = CustomLights::read(&self.get_interface(Interface::Keyboard)?)?;
+                const bytes_size: usize = ::std::mem::size_of::<CustomLights> - 2;
+                let bytes: [u8; bytes_size] = ::std::mem::transmute_copy(&custom_lights);
+                if bytes.iter().map(|b| *b as u16).sum() == custom_lights.bytesum {
+                    return Some(custom_lights);
+                }
+            }
+        }
     }
 
     pub fn set_custom_lights(&self, custom_lights: &CustomLights) -> Result<()> {
         unsafe {
             let mut data = custom_lights.clone();
             // Bytesum is 2 bytes, we shouldn't include that
-            let bytes: [u8; ::std::mem::size_of::<CustomLights>() - 2] =
-                ::std::mem::transmute_copy(&data);
+            const bytes_size: usize = ::std::mem::size_of::<CustomLights> - 2;
+            let bytes: [u8; bytes_size] = ::std::mem::transmute_copy(&data);
             data.bytesum = bytes.iter().map(|b| *b as u16).sum();
             data.write(&self.get_interface(Interface::Keyboard)?)?;
             LightControl::check_write(&self.get_interface(Interface::Keyboard)?)
@@ -177,9 +194,8 @@ pub struct Profile {
 impl Profile {
     fn new(index: u8) -> Self {
         Profile {
-            _report_id: 0x05,
-            _size: ::std::mem::size_of::<Self>() as u8,
             index: index,
+            .. unsafe { ::std::mem::uninitialized() }
         }
     }
 }

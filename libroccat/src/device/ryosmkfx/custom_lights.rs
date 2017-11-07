@@ -6,7 +6,7 @@ use super::hardware_color::*;
 use super::sdk::*;
 
 #[derive(Clone)]
-#[repr(packed)]
+#[repr(C, packed)]
 pub struct LightLayer {
     states: [u8; 15],
     numbers_red: [u8; 60],
@@ -388,10 +388,8 @@ pub struct CustomLights {
 impl CustomLights {
     pub fn new(light_layer: LightLayer) -> Self {
         Self {
-            _report_id: 0x18,
-            _size: ::std::mem::size_of::<Self>() as u8,
             light_layer,
-            bytesum: 0,
+            .. unsafe { ::std::mem::uninitialized() }
         }
     }
 }

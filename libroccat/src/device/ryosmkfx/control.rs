@@ -29,9 +29,9 @@ pub struct Control {
 impl Control {
     pub fn new(value: u8, request: u8) -> Self {
         Self {
-            _report_id: 0x04,
             value,
             request,
+            .. unsafe { ::std::mem::uninitialized() }
         }
     }
 

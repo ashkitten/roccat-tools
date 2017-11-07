@@ -7,12 +7,6 @@ pub enum LightMode {
     Layer = 0x01,
 }
 
-impl Default for LightMode {
-    fn default() -> Self {
-        LightMode::Plain
-    }
-}
-
 #[derive(Clone, Debug)]
 #[repr(u8)]
 pub enum LightEffect {
@@ -29,23 +23,11 @@ pub enum LightEffect {
     Fade = 0x10,
 }
 
-impl Default for LightEffect {
-    fn default() -> Self {
-        LightEffect::Off
-    }
-}
-
 #[derive(Clone, Debug)]
 #[repr(u8)]
 pub enum LightLedFeedback {
     Off = 0x00,
     MacroExecution = 0x01,
-}
-
-impl Default for LightLedFeedback {
-    fn default() -> Self {
-        LightLedFeedback::Off
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -55,12 +37,6 @@ pub enum LightDimnessType {
     StarlitSky = 0x01,
     // TODO: find out what 0x02 is?
     FallAsleep = 0x03,
-}
-
-impl Default for LightDimnessType {
-    fn default() -> Self {
-        LightDimnessType::Off
-    }
 }
 
 #[derive(HidrawRead, HidrawWrite, Debug, Clone)]

@@ -47,12 +47,6 @@ pub union EventSubtype {
     pub rad: EventRadSubtype,
 }
 
-impl Default for EventSubtype {
-    fn default() -> Self {
-        Self { none: 0 }
-    }
-}
-
 #[derive(Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
 pub enum EventRadSubtype {
@@ -100,23 +94,11 @@ pub enum EventType {
     Talk = 0xff,
 }
 
-impl Default for EventType {
-    fn default() -> Self {
-        EventType::Unknown
-    }
-}
-
 #[derive(Copy, Clone)]
 pub union EventAction {
     pub none: u8,
     pub key: EventKeyAction,
     pub live_recording: EventLiveRecordingAction,
-}
-
-impl Default for EventAction {
-    fn default() -> Self {
-        Self { none: 0 }
-    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]

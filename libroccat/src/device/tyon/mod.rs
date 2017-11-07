@@ -65,9 +65,8 @@ pub struct Profile {
 impl Profile {
     fn new(index: u8) -> Self {
         Profile {
-            _report_id: 0x05,
-            _size: ::std::mem::size_of::<Self>() as u8,
             index: index,
+            .. unsafe { ::std::mem::uninitialized() }
         }
     }
 }
