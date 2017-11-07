@@ -73,10 +73,7 @@ quick_main!(|| -> Result<()> {
         }
 
         for handle in join_handles {
-            match handle.join() {
-                Err(err) => bail!("Thread panicked: {:?}", err),
-                _ => (),
-            }
+            handle.join().unwrap()
         }
     }
 

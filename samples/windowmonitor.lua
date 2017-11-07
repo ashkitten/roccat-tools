@@ -14,6 +14,7 @@ function match_active_window_class(match_class)
         local result = handle:read("*l")
         handle:close()
 
+        if result == nil then return false end
         local instance, class = string.match(result, '"(.*)", "(.*)"')
 
         if class == nil then return false end

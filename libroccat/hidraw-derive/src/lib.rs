@@ -54,7 +54,6 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
 
     let output = quote! {
         impl #name {
-
             ioctl!(readwrite __hidraw_write with b'H', 0x06; #name);
 
             pub unsafe fn write(mut self, interface: &::std::fs::File) -> Result<()> {

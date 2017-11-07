@@ -167,9 +167,11 @@ pub enum Interface {
 #[derive(HidrawRead, HidrawWrite, Debug)]
 #[repr(C, packed)]
 pub struct Profile {
-    #[hidraw_constant = "0x05"] _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
-    index: u8,
+    #[hidraw_constant = "0x05"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
+    _size: u8,
+    pub index: u8,
 }
 
 impl Profile {
@@ -185,10 +187,12 @@ impl Profile {
 #[derive(HidrawRead, Debug)]
 #[repr(C, packed)]
 pub struct DeviceInfo {
-    #[hidraw_constant = "0x0f"] _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
-    firmware_version: u8,
-    dfu_version: u8,
-    led_firmware_version: u8,
-    unknown: [u8; 2],
+    #[hidraw_constant = "0x0f"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
+    _size: u8,
+    pub firmware_version: u8,
+    pub dfu_version: u8,
+    pub led_firmware_version: u8,
+    pub unknown: [u8; 2],
 }

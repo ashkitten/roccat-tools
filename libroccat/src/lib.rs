@@ -14,6 +14,8 @@ extern crate tokio_core;
 extern crate tokio_file_unix;
 extern crate tokio_io;
 
+mod serialize;
+pub mod device;
 pub mod errors {
     error_chain! {
         foreign_links {
@@ -23,8 +25,6 @@ pub mod errors {
         }
     }
 }
-
-pub mod device;
 
 pub use device::Device;
 pub use errors::*;

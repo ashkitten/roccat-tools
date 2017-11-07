@@ -32,12 +32,14 @@ impl Default for LightControlWriteCheck {
 #[derive(HidrawRead, HidrawWrite, Debug)]
 #[repr(C, packed)]
 pub struct LightControl {
-    #[hidraw_constant = "0x13"] _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self> as u8"] _size: u8,
+    #[hidraw_constant = "0x13"]
+    _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self> as u8"]
+    _size: u8,
     pub state: LightControlState,
-    unknown0: [u8; 3],
-    write_check: LightControlWriteCheck,
-    unknown1: u8,
+    pub unknown0: [u8; 3],
+    pub write_check: LightControlWriteCheck,
+    pub unknown1: u8,
 }
 
 impl LightControl {

@@ -358,7 +358,7 @@ impl LuaUserData for RyosMkFx {
             }
 
             this.0
-                .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data), 0))
+                .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data)))
                 .unwrap();
 
             Ok(())
