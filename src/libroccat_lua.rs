@@ -148,17 +148,19 @@ impl LuaUserData for RyosMkFx {
                 if let Some(table) = this.get_event_table(lua)? {
                     return Ok(Some(table));
                 }
+                std::thread::sleep(std::time::Duration::from_millis(5));
             }
         });
 
         methods.add_method("get_event_timed", |lua, this, timeout| {
-            let start = ::std::time::Instant::now();
-            let duration = ::std::time::Duration::from_millis(timeout);
+            let start = std::time::Instant::now();
+            let duration = std::time::Duration::from_millis(timeout);
 
             while start.elapsed() < duration {
                 if let Some(table) = this.get_event_table(lua)? {
                     return Ok(Some(table));
                 }
+                std::thread::sleep(std::time::Duration::from_millis(5));
             }
 
             return Ok(None);
