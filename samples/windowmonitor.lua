@@ -47,4 +47,6 @@ while true do
             tyon.device:set_profile(1)
         end
     end
+
+    libroccat.sleep(200)
 end

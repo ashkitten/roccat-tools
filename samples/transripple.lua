@@ -37,7 +37,7 @@ RIPPLE_COLORS = {
     { state = true, red = 0xa0, green = 0x00, blue = 0xc0 },
 }
 
-SLOWDOWN = 10
+SLOWDOWN = 20
 
 -- helpers
 
@@ -209,7 +209,7 @@ end
 
 while true do
     for i, ryosmkfx in pairs(devices.ryosmkfx) do
-        local event = ryosmkfx.device:get_event_timed(SLOWDOWN)
+        local event, time = ryosmkfx.device:get_event_timed(SLOWDOWN)
 
         if event then
             if event.type == "profile_start" then
