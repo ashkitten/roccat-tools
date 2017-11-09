@@ -4,8 +4,18 @@ use errors::*;
 
 #[repr(u8)]
 pub enum ControlRequest {
+    KeysPrimary = 0xa0,
+    KeysFunction = 0xa1,
+    KeysMacro = 0xa2,
+    KeysThumbster = 0xa3,
+    KeysEasyzone = 0xa5,
+    KeyMask = 0xb0,
     Light = 0xb1,
-    B3 = 0xb3, // TODO: ??
+    KeysExtra = 0xb2,
+    StoredLightsAutomatic = 0xc0,
+    StoredLightsManual = 0xd0,
+    LightMacro = 0xe0,
+    Request12 = 0xf0, // idk, from erazor_de's code
 }
 
 #[repr(u8)]

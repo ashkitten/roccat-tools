@@ -25,7 +25,7 @@ impl Tyon {
 
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8> {
-        unsafe { Ok(Profile::read(&self.get_interface(Interface::Mouse))?.index + 1) }
+        unsafe { Ok(Profile::read(&self.get_interface(Interface::Primary))?.index + 1) }
     }
 
     /// Sets the current profile
@@ -36,7 +36,7 @@ impl Tyon {
                 "Profile {} is out of range",
                 index
             );
-            Profile::new(index - 1).write(&self.get_interface(Interface::Mouse))
+            Profile::new(index - 1).write(&self.get_interface(Interface::Primary))
         }
     }
 
@@ -46,10 +46,8 @@ impl Tyon {
 }
 
 pub enum Interface {
-    Mouse = 0,
-    Keyboard = 1,
-    Joystick = 2,
-    Misc = 3,
+    Primary = 0,
+    Events = 1,
 }
 
 #[derive(HidrawRead, HidrawWrite, Debug)]

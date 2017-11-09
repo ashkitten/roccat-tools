@@ -1,5 +1,6 @@
 pub mod ryosmkfx;
 pub mod tyon;
+pub mod button;
 
 use std::convert::TryInto;
 
@@ -36,10 +37,8 @@ impl Device {
 }
 
 pub enum Interface {
-    Keyboard,
-    Mouse,
-    Joystick,
-    Misc,
+    Primary,
+    Events,
 }
 
 impl TryInto<ryosmkfx::Interface> for Interface {
@@ -47,8 +46,8 @@ impl TryInto<ryosmkfx::Interface> for Interface {
 
     fn try_into(self) -> Result<ryosmkfx::Interface> {
         match self {
-            Interface::Keyboard => Ok(ryosmkfx::Interface::Keyboard),
-            Interface::Mouse => Ok(ryosmkfx::Interface::Mouse),
+            Interface::Primary => Ok(ryosmkfx::Interface::Primary),
+            Interface::Events => Ok(ryosmkfx::Interface::Events),
             _ => bail!("No such interface on Ryos MK FX"),
         }
     }
@@ -59,10 +58,8 @@ impl TryInto<tyon::Interface> for Interface {
 
     fn try_into(self) -> Result<tyon::Interface> {
         match self {
-            Interface::Keyboard => Ok(tyon::Interface::Keyboard),
-            Interface::Mouse => Ok(tyon::Interface::Mouse),
-            Interface::Joystick => Ok(tyon::Interface::Joystick),
-            Interface::Misc => Ok(tyon::Interface::Mouse),
+            Interface::Primary => Ok(tyon::Interface::Primary),
+            Interface::Events => Ok(tyon::Interface::Events),
         }
     }
 }

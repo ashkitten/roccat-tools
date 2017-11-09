@@ -18,7 +18,7 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
                 {
                     const BYTES_SIZE: usize = ::std::mem::size_of::<#name>() -
                         ::std::mem::size_of::<#bytesum_field_type>();
-                    let bytes: [u8; BYTES_SIZE] = unsafe { ::std::mem::transmute_copy(&data) };
+                    let bytes: [u8; BYTES_SIZE] = ::std::mem::transmute_copy(&data);
                     if data.#bytesum_field_name ==
                         bytes.iter().map(|b| *b as #bytesum_field_type).sum()
                     {
@@ -74,7 +74,7 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
             quote! {
                 const BYTES_SIZE: usize = ::std::mem::size_of::<#name>() -
                     ::std::mem::size_of::<#bytesum_field_type>();
-                let bytes: [u8; BYTES_SIZE] = unsafe { ::std::mem::transmute_copy(&data) };
+                let bytes: [u8; BYTES_SIZE] = ::std::mem::transmute_copy(&data);
                 data.#bytesum_field_name = bytes.iter().map(|b| *b as #bytesum_field_type).sum();
             }
         } else {
