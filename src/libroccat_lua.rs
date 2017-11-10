@@ -35,8 +35,8 @@ impl LuaUserData for Libroccat {
             let table = lua.create_table();
             for (i, device) in libroccat::find_devices().unwrap().into_iter().enumerate() {
                 match device {
-                    libroccat::Device::RyosMkFx(device) => table.set(i + 1, RyosMkFx(device))?,
-                    libroccat::Device::Tyon(device) => table.set(i + 1, Tyon(device))?,
+                    libroccat::device::Device::RyosMkFx(device) => table.set(i + 1, RyosMkFx(device))?,
+                    libroccat::device::Device::Tyon(device) => table.set(i + 1, Tyon(device))?,
                 };
             }
             Ok(table)
@@ -49,7 +49,7 @@ impl LuaUserData for Libroccat {
     }
 }
 
-struct RyosMkFx(libroccat::device::RyosMkFx);
+struct RyosMkFx(libroccat::device::ryosmkfx::RyosMkFx);
 
 impl RyosMkFx {
     fn get_event_table<'lua>(&self, lua: &'lua Lua) -> LuaResult<Option<LuaTable<'lua>>> {
@@ -368,7 +368,7 @@ impl LuaUserData for RyosMkFx {
     }
 }
 
-struct Tyon(libroccat::device::Tyon);
+struct Tyon(libroccat::device::tyon::Tyon);
 
 impl LuaUserData for Tyon {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {

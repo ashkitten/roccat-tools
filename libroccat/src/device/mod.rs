@@ -4,8 +4,8 @@ pub mod button;
 
 use std::convert::TryInto;
 
-pub use self::ryosmkfx::RyosMkFx;
-pub use self::tyon::Tyon;
+use self::ryosmkfx::RyosMkFx;
+use self::tyon::Tyon;
 use errors::*;
 
 pub enum Device {
@@ -48,7 +48,6 @@ impl TryInto<ryosmkfx::Interface> for Interface {
         match self {
             Interface::Primary => Ok(ryosmkfx::Interface::Primary),
             Interface::Events => Ok(ryosmkfx::Interface::Events),
-            _ => bail!("No such interface on Ryos MK FX"),
         }
     }
 }

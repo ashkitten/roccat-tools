@@ -11,7 +11,7 @@ mod libroccat_lua;
 mod errors {
     error_chain! {
         links {
-            LibroccatError(::libroccat::errors::Error, ::libroccat::errors::ErrorKind);
+            LibroccatError(::libroccat::Error, ::libroccat::ErrorKind);
         }
 
         foreign_links {

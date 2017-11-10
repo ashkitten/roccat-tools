@@ -11,7 +11,7 @@ extern crate libudev;
 extern crate nix;
 
 pub mod device;
-pub mod errors {
+mod errors {
     error_chain! {
         foreign_links {
             UdevError(::libudev::Error);
@@ -21,8 +21,8 @@ pub mod errors {
     }
 }
 
-pub use device::Device;
 pub use errors::*;
+use device::Device;
 use device::ryosmkfx::RyosMkFx;
 use device::tyon::Tyon;
 
