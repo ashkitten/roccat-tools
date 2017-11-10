@@ -22,12 +22,12 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
                     if data.#bytesum_field_name ==
                         bytes.iter().map(|b| *b as #bytesum_field_type).sum()
                     {
-                        break
+                        return Ok(data)
                     }
                 }
             }
         } else {
-            quote!(break)
+            quote!(return Ok(data))
         };
 
     let output = quote! {
@@ -37,7 +37,6 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
 
             pub unsafe fn read(interface: &::std::fs::File) -> Result<Self> {
                 use std::os::unix::io::AsRawFd;
-                use nix::{Error, Errno};
 
                 let mut data = Self {
                     #(#const_field_names: #const_field_vals,)*
@@ -45,19 +44,19 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
                 };
 
                 let mut errors = 0;
-                while errors < 10 {
+                loop {
                     match Self::__hidraw_read(interface.as_raw_fd(), &mut data) {
                         Ok(_) => #check_bytesum,
-                        Err(Error::Sys(Errno::EINTR)) => errors += 1,
-                        Err(Error::Sys(Errno::EAGAIN)) => errors += 1,
-                        Err(Error::Sys(Errno::ETIMEDOUT)) => errors += 1,
-                        Err(other) => return Err(other.into()),
+                        Err(error) => {
+                            if errors < 10 {
+                                errors += 1;
+                            } else {
+                                return Err(error.into());
+                            }
+                        }
                     }
                 }
-
-                Ok(data)
             }
-
         }
     };
 
@@ -87,7 +86,6 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
 
             pub unsafe fn write(self, interface: &::std::fs::File) -> Result<()> {
                 use std::os::unix::io::AsRawFd;
-                use nix::{Error, Errno};
 
                 let mut data = Self {
                     #(#const_field_names: #const_field_vals,)*
@@ -97,19 +95,19 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
                 #assign_bytesum
 
                 let mut errors = 0;
-                while errors < 10 {
+                loop {
                     match Self::__hidraw_write(interface.as_raw_fd(), &mut data) {
-                        Ok(_) => break,
-                        Err(Error::Sys(Errno::EINTR)) => errors += 1,
-                        Err(Error::Sys(Errno::EAGAIN)) => errors += 1,
-                        Err(Error::Sys(Errno::ETIMEDOUT)) => errors += 1,
-                        Err(other) => return Err(other.into()),
+                        Ok(_) => return Ok(()),
+                        Err(error) => {
+                            if errors < 10 {
+                                errors += 1;
+                            } else {
+                                return Err(error.into());
+                            }
+                        }
                     }
                 }
-
-                Ok(())
             }
-
         }
     };
 
