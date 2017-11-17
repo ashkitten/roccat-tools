@@ -37,8 +37,6 @@ RIPPLE_COLORS = {
     { state = true, red = 0xa0, green = 0x00, blue = 0xc0 },
 }
 
-SLOWDOWN = 20
-
 -- helpers
 
 MATRIX_ROWS = 25
@@ -209,26 +207,30 @@ end
 
 while true do
     for i, ryosmkfx in pairs(devices.ryosmkfx) do
-        local event, time = ryosmkfx.device:get_event_timed(SLOWDOWN)
+        while true do
+            local event, time = ryosmkfx.device:get_event_immediate()
 
-        if event then
-            if event.type == "profile_start" then
-                ryosmkfx_init_lights(ryosmkfx)
+            if event then
+                if event.type == "profile_start" then
+                    ryosmkfx_init_lights(ryosmkfx)
+                end
+
+                if ryosmkfx.profile == 1 then
+                    if event.type == "effect" then
+                        if event.action == "press" then
+                            ryosmkfx.ripples[#ryosmkfx.ripples + 1] = {
+                                center = KEYS[event.data],
+                                radius = 1
+                            }
+                        end
+                    end
+                end
+            else
+                break
             end
         end
 
         if ryosmkfx.profile == 1 then
-            if event then
-                if event.type == "effect" then
-                    if event.action == "press" then
-                        ryosmkfx.ripples[#ryosmkfx.ripples + 1] = {
-                            center = KEYS[event.data],
-                            radius = 1
-                        }
-                    end
-                end
-            end
-
             for i = #ryosmkfx.ripples, 1, -1 do
                 if ryosmkfx.ripples[i].radius <= MATRIX_COLS / KEY_WIDTH + #RIPPLE_COLORS then
                     ryosmkfx.ripples[i].radius = ryosmkfx.ripples[i].radius + 1
@@ -255,4 +257,6 @@ while true do
             end
         end
     end
+
+    libroccat.sleep(1)
 end

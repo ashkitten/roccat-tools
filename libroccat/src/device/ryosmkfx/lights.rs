@@ -65,3 +65,28 @@ pub struct Lights {
     #[hidraw_bytesum]
     _bytesum: u16,
 }
+
+impl Default for Lights {
+    /// This is actually just arbitrary defaults I hand-picked
+    fn default() -> Self {
+        Self {
+            profile: 1,
+            brightness: 4,
+            dimness: 1,
+            timeout: 10,
+            mode: LightMode::Plain,
+            effect: LightEffect::FullyLit,
+            unknown0: Default::default(),
+            effect_speed: 1,
+            unknown1: Default::default(),
+            led_feedback: LightLedFeedback::Off,
+            dimness_type: LightDimnessType::StarlitSky,
+            unknown2: Default::default(),
+            red: 0xff,
+            green: 0xff,
+            blue: 0xff,
+            unused: Default::default(),
+            ..unsafe { ::std::mem::uninitialized() }
+        }
+    }
+}

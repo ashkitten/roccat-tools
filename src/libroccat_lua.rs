@@ -35,7 +35,9 @@ impl LuaUserData for Libroccat {
             let table = lua.create_table();
             for (i, device) in libroccat::find_devices().unwrap().into_iter().enumerate() {
                 match device {
-                    libroccat::device::Device::RyosMkFx(device) => table.set(i + 1, RyosMkFx(device))?,
+                    libroccat::device::Device::RyosMkFx(device) => {
+                        table.set(i + 1, RyosMkFx(device))?
+                    }
                     libroccat::device::Device::Tyon(device) => table.set(i + 1, Tyon(device))?,
                 };
             }
@@ -166,6 +168,14 @@ impl LuaUserData for RyosMkFx {
             return Ok(None);
         });
 
+        methods.add_method("get_event_immediate", |lua, this, ()| {
+            if let Some(table) = this.get_event_table(lua)? {
+                Ok(Some(table))
+            } else {
+                Ok(None)
+            }
+        });
+
         methods.add_method(
             "get_profile",
             |_, this, ()| Ok(this.0.get_profile().unwrap()),
@@ -233,7 +243,9 @@ impl LuaUserData for RyosMkFx {
         methods.add_method("set_lights", |_, this, (profile, table): (u8, LuaTable)| {
             use libroccat::device::ryosmkfx::*;
 
-            let mut lights = this.0.get_lights(profile).unwrap();
+            let mut lights = Lights::default();
+            lights.profile = profile;
+
             if let Ok(brightness) = table.get("brightness") {
                 lights.brightness = brightness;
             }
@@ -346,9 +358,9 @@ impl LuaUserData for RyosMkFx {
         });
 
         methods.add_method("set_custom_lights", |_, this, table: LuaTable| {
-            use libroccat::device::ryosmkfx::{CustomLights, LightLayer};
+            use libroccat::device::ryosmkfx::{CustomLights, LightLayer, LightLayerData};
 
-            let mut data = this.0.get_custom_lights().unwrap().light_layer.get_data();
+            let mut data = LightLayerData::default();
 
             for i in 0..120 {
                 if let Ok(key_table) = table.get(i): LuaResult<LuaTable> {
