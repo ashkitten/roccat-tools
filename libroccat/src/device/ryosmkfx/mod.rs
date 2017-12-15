@@ -56,7 +56,8 @@ impl RyosMkFx {
                 file.read_exact(&mut buf).unwrap();
 
                 let mut event_queue_guard = event_queue.lock().unwrap();
-                (*event_queue_guard).insert(0, unsafe { ::std::mem::transmute::<_, Event>(buf) });
+                (*event_queue_guard)
+                    .insert(0, unsafe { ::std::mem::transmute::<_, Event>(buf) });
             }
         });
 
@@ -248,10 +249,8 @@ pub enum Interface {
 #[derive(HidrawRead, HidrawWrite, Debug)]
 #[repr(C, packed)]
 pub struct Profile {
-    #[hidraw_constant = "0x05"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x05"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub index: u8,
 }
 
@@ -267,10 +266,8 @@ impl Profile {
 #[derive(HidrawRead, Debug)]
 #[repr(C, packed)]
 pub struct DeviceInfo {
-    #[hidraw_constant = "0x0f"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x0f"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub firmware_version: u8,
     pub dfu_version: u8,
     pub led_firmware_version: u8,

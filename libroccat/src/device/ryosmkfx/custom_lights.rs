@@ -377,13 +377,10 @@ impl LightLayerData {
 #[derive(HidrawRead, HidrawWrite, Copy, Clone)]
 #[repr(C, packed)]
 pub struct CustomLights {
-    #[hidraw_constant = "0x18"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x18"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub light_layer: LightLayer,
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl CustomLights {

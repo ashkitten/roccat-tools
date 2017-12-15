@@ -10,14 +10,11 @@ use errors::*;
 #[derive(HidrawRead, HidrawWrite, Copy, Clone)]
 #[repr(C, packed)]
 pub struct KeysPrimary {
-    #[hidraw_constant = "0x06"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x06"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub profile_index: u8,
     pub keys: [u8; 120], // Just key mappings
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl KeysPrimary {
@@ -56,14 +53,11 @@ impl fmt::Debug for KeysPrimary {
 #[derive(HidrawRead, HidrawWrite)]
 #[repr(C, packed)]
 pub struct KeysFunction {
-    #[hidraw_constant = "0x07"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x07"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub profile_index: u8,
     pub keys: [ButtonConfig; 15 * 2], // Regular and with Fn pressed
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl KeysFunction {
@@ -102,14 +96,11 @@ impl fmt::Debug for KeysFunction {
 #[derive(HidrawRead, HidrawWrite)]
 #[repr(C, packed)]
 pub struct KeysMacro {
-    #[hidraw_constant = "0x08"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x08"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub profile_index: u8,
     pub keys: [ButtonConfig; 5 * 2], // Regular and with EasyShift pressed
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl KeysMacro {
@@ -148,14 +139,11 @@ impl fmt::Debug for KeysMacro {
 #[derive(HidrawRead, HidrawWrite)]
 #[repr(C, packed)]
 pub struct KeysThumbster {
-    #[hidraw_constant = "0x09"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x09"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub profile_index: u8,
     pub keys: [ButtonConfig; 3 * 2], // Regular and with EasyShift pressed
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl KeysThumbster {
@@ -194,16 +182,13 @@ impl fmt::Debug for KeysThumbster {
 #[derive(HidrawRead, HidrawWrite, Copy, Clone, Debug)]
 #[repr(C, packed)]
 pub struct KeysExtra {
-    #[hidraw_constant = "0x0a"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x0a"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub profile_index: u8,
     pub capslock: u8,
     pub fn_: u8,
     pub unused: u8,
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl KeysExtra {
@@ -233,14 +218,11 @@ impl Default for KeysExtra {
 #[derive(HidrawRead, HidrawWrite)]
 #[repr(C, packed)]
 pub struct KeysEasyzone {
-    #[hidraw_constant = "0x0b"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u16"]
-    _size: u16,
+    #[hidraw_constant = "0x0b"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u16"] _size: u16,
     pub profile_index: u8,
     pub keys: [ButtonConfig; 96], // Just key mappings
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl KeysEasyzone {

@@ -67,9 +67,9 @@ quick_main!(|| -> Result<()> {
 
         for path in matches.values_of("script").unwrap() {
             let path = path.to_string();
-            join_handles.push(thread::spawn(
-                move || libroccat_lua::run_script(&path).unwrap(),
-            ));
+            join_handles.push(thread::spawn(move || {
+                libroccat_lua::run_script(&path).unwrap()
+            }));
         }
 
         for handle in join_handles {

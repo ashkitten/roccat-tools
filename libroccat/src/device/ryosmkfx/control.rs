@@ -30,8 +30,7 @@ pub enum ControlStatus {
 #[derive(HidrawRead, HidrawWrite)]
 #[repr(C, packed)]
 pub struct Control {
-    #[hidraw_constant = "0x04"]
-    _report_id: u8,
+    #[hidraw_constant = "0x04"] _report_id: u8,
     pub value: u8,
     pub request: u8,
 }

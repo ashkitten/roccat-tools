@@ -124,20 +124,22 @@ impl RyosMkFx {
                             EventKeyAction::Release => "release",
                             EventKeyAction::Press => "press",
                         },
-                        EventType::LiveRecording => match unsafe { event.action.live_recording } {
-                            EventLiveRecordingAction::Start => "start",
-                            EventLiveRecordingAction::MacroKeySelected => "macro_key_selected",
-                            EventLiveRecordingAction::EndSuccess => "end_success",
-                            EventLiveRecordingAction::EndAbort => "end_abort",
-                            EventLiveRecordingAction::InvalidKey => "invalid_key",
-                        },
+                        EventType::LiveRecording => {
+                            match unsafe { event.action.live_recording } {
+                                EventLiveRecordingAction::Start => "start",
+                                EventLiveRecordingAction::MacroKeySelected => "macro_key_selected",
+                                EventLiveRecordingAction::EndSuccess => "end_success",
+                                EventLiveRecordingAction::EndAbort => "end_abort",
+                                EventLiveRecordingAction::InvalidKey => "invalid_key",
+                            }
+                        }
                         _ => unreachable!(),
                     },
                 )?;
             }
             return Ok(Some(table));
         }
-        return Ok(None);
+        Ok(None)
     }
 }
 
@@ -145,13 +147,11 @@ impl LuaUserData for RyosMkFx {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
         methods.add_method("name", |_, _, ()| Ok("ryos_mk_fx"));
 
-        methods.add_method("get_event", |lua, this, ()| {
-            loop {
-                if let Some(table) = this.get_event_table(lua)? {
-                    return Ok(Some(table));
-                }
-                std::thread::sleep(std::time::Duration::from_millis(5));
+        methods.add_method("get_event", |lua, this, ()| loop {
+            if let Some(table) = this.get_event_table(lua)? {
+                return Ok(Some(table));
             }
+            std::thread::sleep(std::time::Duration::from_millis(5));
         });
 
         methods.add_method("get_event_timed", |lua, this, timeout| {
@@ -165,7 +165,7 @@ impl LuaUserData for RyosMkFx {
                 std::thread::sleep(std::time::Duration::from_millis(5));
             }
 
-            return Ok(None);
+            Ok(None)
         });
 
         methods.add_method("get_event_immediate", |lua, this, ()| {
@@ -176,10 +176,9 @@ impl LuaUserData for RyosMkFx {
             }
         });
 
-        methods.add_method(
-            "get_profile",
-            |_, this, ()| Ok(this.0.get_profile().unwrap()),
-        );
+        methods.add_method("get_profile", |_, this, ()| {
+            Ok(this.0.get_profile().unwrap())
+        });
 
         methods.add_method("set_profile", |_, this, profile| {
             this.0.set_profile(profile).unwrap();
@@ -386,10 +385,9 @@ impl LuaUserData for Tyon {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
         methods.add_method("name", |_, _, ()| Ok("tyon"));
 
-        methods.add_method(
-            "get_profile",
-            |_, this, ()| Ok(this.0.get_profile().unwrap()),
-        );
+        methods.add_method("get_profile", |_, this, ()| {
+            Ok(this.0.get_profile().unwrap())
+        });
 
         methods.add_method("set_profile", |_, this, profile| {
             this.0.set_profile(profile).unwrap();

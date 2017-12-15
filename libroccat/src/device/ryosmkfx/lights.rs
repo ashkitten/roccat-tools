@@ -42,10 +42,8 @@ pub enum LightDimnessType {
 #[derive(HidrawRead, HidrawWrite, Debug, Copy, Clone)]
 #[repr(C, packed)]
 pub struct Lights {
-    #[hidraw_constant = "0x0d"]
-    _report_id: u8,
-    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
-    _size: u8,
+    #[hidraw_constant = "0x0d"] _report_id: u8,
+    #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"] _size: u8,
     pub profile: u8,
     pub brightness: u8, // 0-5
     pub dimness: u8,    // 0-5
@@ -62,8 +60,7 @@ pub struct Lights {
     pub green: u16,
     pub blue: u16,
     pub unused: [u8; 10],
-    #[hidraw_bytesum]
-    _bytesum: u16,
+    #[hidraw_bytesum] _bytesum: u16,
 }
 
 impl Default for Lights {
