@@ -34,10 +34,15 @@ quick_main!(|| -> Result<()> {
     let matches = App::new("roccat-tools")
         .author("Ash Lea <ashlea@protonmail.com>")
         .about("Controls Roccat devices")
-        .args_from_usage("
-            -l, --list               'List attached devices'
-            -s, --script [script]... 'Run a script'
-        ")
+        .subcommand(SubCommand::with_name("list")
+            .about("List attached devices")
+        )
+        .subcommand(SubCommand::with_name("run")
+            .about("Run scripts")
+            .args_from_usage("
+                <script>...
+            ")
+        )
         .subcommand(SubCommand::with_name("get")
             .about("Get a property of a device")
             .args_from_usage("
@@ -55,14 +60,13 @@ quick_main!(|| -> Result<()> {
         )
         .get_matches();
 
-    if matches.is_present("list") {
+    if let Some(_matches) = matches.subcommand_matches("list") {
         for (i, device) in libroccat::find_devices()?.iter().enumerate() {
             println!("{}: {}", i, device.get_common_name());
         }
-        std::process::exit(0);
     }
 
-    if matches.is_present("script") {
+    if let Some(matches) = matches.subcommand_matches("run") {
         let mut join_handles = Vec::new();
 
         for path in matches.values_of("script").unwrap() {
