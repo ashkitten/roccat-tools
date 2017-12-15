@@ -21,8 +21,7 @@ fn ryosmkfx() {
                 let lights = device.get_lights(i).unwrap();
                 println!(
                     "Light effect for profile {}: {:?}",
-                    lights.profile,
-                    lights.effect
+                    lights.profile, lights.effect
                 );
             }
 
