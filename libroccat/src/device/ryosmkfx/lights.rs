@@ -1,13 +1,13 @@
 use errors::*;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum LightMode {
     Plain = 0x00,
     Layer = 0x01,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum LightEffect {
     Off = 0x00,
@@ -23,14 +23,14 @@ pub enum LightEffect {
     Fade = 0x10,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum LightLedFeedback {
     Off = 0x00,
     MacroExecution = 0x01,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum LightDimnessType {
     Off = 0x00,
@@ -39,7 +39,7 @@ pub enum LightDimnessType {
     FallAsleep = 0x03,
 }
 
-#[derive(HidrawRead, HidrawWrite, Debug, Clone)]
+#[derive(HidrawRead, HidrawWrite, Debug, Copy, Clone)]
 #[repr(C, packed)]
 pub struct Lights {
     #[hidraw_constant = "0x0d"]

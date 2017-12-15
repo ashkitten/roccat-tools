@@ -5,7 +5,7 @@ use errors::*;
 use super::hardware_color::*;
 use super::sdk::*;
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 #[repr(C, packed)]
 pub struct LightLayer {
     states: [u8; 15],
@@ -374,7 +374,7 @@ impl LightLayerData {
     }
 }
 
-#[derive(HidrawRead, HidrawWrite, Clone)]
+#[derive(HidrawRead, HidrawWrite, Copy, Clone)]
 #[repr(C, packed)]
 pub struct CustomLights {
     #[hidraw_constant = "0x18"]

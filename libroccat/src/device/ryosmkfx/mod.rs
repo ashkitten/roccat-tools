@@ -80,8 +80,8 @@ impl RyosMkFx {
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8> {
         unsafe {
-            // Numbering starts from 32 for some reason in the API
-            Ok(Profile::read(&self.get_interface(Interface::Primary)?)?.index - 31)
+            // Numbering starts from 16 for some reason in the API
+            Ok(Profile::read(&self.get_interface(Interface::Primary)?)?.index - 15)
         }
     }
 
@@ -93,8 +93,8 @@ impl RyosMkFx {
                 "Profile {} is out of range",
                 index
             );
-            // Numbering starts from 32 for some reason in the API
-            Profile::new(index + 31).write(&self.get_interface(Interface::Primary)?)
+            // Numbering starts from 16 for some reason in the API
+            Profile::new(index + 15).write(&self.get_interface(Interface::Primary)?)
         }
     }
 

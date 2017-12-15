@@ -7,7 +7,7 @@ pub use self::defaults::*;
 use device::button::*;
 use errors::*;
 
-#[derive(HidrawRead, HidrawWrite)]
+#[derive(HidrawRead, HidrawWrite, Copy, Clone)]
 #[repr(C, packed)]
 pub struct KeysPrimary {
     #[hidraw_constant = "0x06"]
@@ -42,12 +42,13 @@ impl Default for KeysPrimary {
 
 impl fmt::Debug for KeysPrimary {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let bytesum = self._bytesum;
         fmt.debug_struct("KeysPrimary")
             .field("_report_id", &self._report_id)
             .field("_size", &self._size)
             .field("profile_index", &self.profile_index)
             .field("keys", &&self.keys[..])
-            .field("_bytesum", &&self._bytesum)
+            .field("_bytesum", &bytesum)
             .finish()
     }
 }
@@ -87,12 +88,13 @@ impl Default for KeysFunction {
 
 impl fmt::Debug for KeysFunction {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let bytesum = self._bytesum;
         fmt.debug_struct("KeysFunction")
             .field("_report_id", &self._report_id)
             .field("_size", &self._size)
             .field("profile_index", &self.profile_index)
             .field("keys", &&self.keys[..])
-            .field("_bytesum", &&self._bytesum)
+            .field("_bytesum", &bytesum)
             .finish()
     }
 }
@@ -132,12 +134,13 @@ impl Default for KeysMacro {
 
 impl fmt::Debug for KeysMacro {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let bytesum = self._bytesum;
         fmt.debug_struct("KeysMacro")
             .field("_report_id", &self._report_id)
             .field("_size", &self._size)
             .field("profile_index", &self.profile_index)
             .field("keys", &&self.keys[..])
-            .field("_bytesum", &&self._bytesum)
+            .field("_bytesum", &bytesum)
             .finish()
     }
 }
@@ -177,17 +180,18 @@ impl Default for KeysThumbster {
 
 impl fmt::Debug for KeysThumbster {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let bytesum = self._bytesum;
         fmt.debug_struct("KeysThumbster")
             .field("_report_id", &self._report_id)
             .field("_size", &self._size)
             .field("profile_index", &self.profile_index)
             .field("keys", &&self.keys[..])
-            .field("_bytesum", &&self._bytesum)
+            .field("_bytesum", &bytesum)
             .finish()
     }
 }
 
-#[derive(HidrawRead, HidrawWrite, Debug)]
+#[derive(HidrawRead, HidrawWrite, Copy, Clone, Debug)]
 #[repr(C, packed)]
 pub struct KeysExtra {
     #[hidraw_constant = "0x0a"]
@@ -261,12 +265,14 @@ impl Default for KeysEasyzone {
 
 impl fmt::Debug for KeysEasyzone {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let size = self._size;
+        let bytesum = self._bytesum;
         fmt.debug_struct("KeysEasyzone")
             .field("_report_id", &self._report_id)
-            .field("_size", &self._size)
+            .field("_size", &size)
             .field("profile_index", &self.profile_index)
             .field("keys", &&self.keys[..])
-            .field("_bytesum", &&self._bytesum)
+            .field("_bytesum", &bytesum)
             .finish()
     }
 }
