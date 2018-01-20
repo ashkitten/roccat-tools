@@ -1,5 +1,4 @@
 #![recursion_limit = "128"]
-extern crate failure;
 extern crate proc_macro;
 #[macro_use]
 extern crate quote;
