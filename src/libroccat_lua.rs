@@ -124,15 +124,13 @@ impl RyosMkFx {
                             EventKeyAction::Release => "release",
                             EventKeyAction::Press => "press",
                         },
-                        EventType::LiveRecording => {
-                            match unsafe { event.action.live_recording } {
-                                EventLiveRecordingAction::Start => "start",
-                                EventLiveRecordingAction::MacroKeySelected => "macro_key_selected",
-                                EventLiveRecordingAction::EndSuccess => "end_success",
-                                EventLiveRecordingAction::EndAbort => "end_abort",
-                                EventLiveRecordingAction::InvalidKey => "invalid_key",
-                            }
-                        }
+                        EventType::LiveRecording => match unsafe { event.action.live_recording } {
+                            EventLiveRecordingAction::Start => "start",
+                            EventLiveRecordingAction::MacroKeySelected => "macro_key_selected",
+                            EventLiveRecordingAction::EndSuccess => "end_success",
+                            EventLiveRecordingAction::EndAbort => "end_abort",
+                            EventLiveRecordingAction::InvalidKey => "invalid_key",
+                        },
                         _ => unreachable!(),
                     },
                 )?;
