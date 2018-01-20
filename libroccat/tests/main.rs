@@ -33,8 +33,8 @@ fn ryosmkfx() {
             data.set_all_states(true);
             for i in 0..120 {
                 data.set_key_red(i, 0xff);
-                data.set_key_green(i, (i as f32 * 255.0 / 120.0).min(255.0) as u8);
-                data.set_key_blue(i, (i as f32 * 255.0 / 120.0).min(255.0) as u8);
+                data.set_key_green(i, (f32::from(i) * 255.0 / 120.0).min(255.0) as u8);
+                data.set_key_blue(i, (f32::from(i) * 255.0 / 120.0).min(255.0) as u8);
                 device
                     .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data)))
                     .unwrap();

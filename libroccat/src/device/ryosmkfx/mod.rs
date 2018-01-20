@@ -40,8 +40,8 @@ impl RyosMkFx {
             event_queue: Arc::new(Mutex::new(Vec::new())),
         };
 
-        let interfaces = device.interfaces.clone();
-        let event_queue = device.event_queue.clone();
+        let interfaces = Arc::clone(&device.interfaces);
+        let event_queue = Arc::clone(&device.event_queue);
         thread::spawn(move || {
             let mut file;
             {

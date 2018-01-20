@@ -237,20 +237,19 @@ fn get_unique_values(values: [u8; 120], data: &LightLayerData) -> Vec<u8> {
 
     let mut set = BTreeSet::new();
 
-    for i in 0..values.len() {
+    for (i, value) in values.iter().enumerate() {
         if data.keys[i].state {
-            set.insert(values[i]);
+            set.insert(*value);
         }
     }
 
-    set.iter().map(|i| *i).collect()
+    set.iter().cloned().collect()
 }
 
 fn init_means(values: [u8; 120], means: &mut [u8; 7], data: &LightLayerData) {
     let unique_values = get_unique_values(values, data);
-    for i in 0..usize::min(unique_values.len(), 7) {
-        means[i] = unique_values[i]
-    }
+    let min = usize::min(unique_values.len(), 7);
+    means[..min].copy_from_slice(&unique_values[..min]);
 }
 
 fn update_means(values: [u8; 120], means: &mut [u8; 7], cluster: [u8; 120], data: &LightLayerData) {
@@ -288,8 +287,8 @@ fn set_cluster(
         }
 
         let mut smallest_error = isize::max_value();
-        for j in 0..7 {
-            let error = (values[i] as isize - means[j] as isize).abs();
+        for (j, mean) in means.iter().enumerate().take(7) {
+            let error = (values[i] as isize - *mean as isize).abs();
             if error < smallest_error {
                 smallest_error = error;
                 smallest_cluster = j as u8;

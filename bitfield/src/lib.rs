@@ -90,7 +90,7 @@ macro_rules! nibblefield_impl {
                 let index = index as u32 * 4;
 
                 *self &= (<$t>::max_value()) ^ 0xf << index;
-                *self |= (value as $t) << index;
+                *self |= (<$t>::from(value)) << index;
 
                 self
             }

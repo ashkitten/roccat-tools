@@ -1,10 +1,10 @@
 #[repr(u8)]
 pub enum ButtonModifier {
     None = 0,
-    Shift = 1 << 0,
-    Ctrl = 1 << 1,
-    Alt = 1 << 2,
-    Super = 1 << 3,
+    Shift = 1,
+    Ctrl = 2,
+    Alt = 4,
+    Super = 8,
 }
 
 #[derive(Clone, Debug)]

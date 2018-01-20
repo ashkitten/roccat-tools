@@ -44,7 +44,7 @@ impl LightControl {
                 sleep(Duration::from_millis(50));
 
                 let control = Self::read(file)?;
-                match ::std::mem::transmute(control.write_check) {
+                match control.write_check {
                     LightControlWriteCheck::Ok => return Ok(()),
                     LightControlWriteCheck::Busy => (),
                     err => bail!("Write check returned {:?}", err),

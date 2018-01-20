@@ -81,7 +81,7 @@ pub fn find_devices() -> Result<Vec<Device>, Error> {
                         .collect(),
                 )?)),
                 _ => None,
-            }.ok_or(format_err!("Incompatible Roccat device"))
+            }.ok_or_else(|| format_err!("Incompatible Roccat device"))
         })
         .filter_map(|device| {
             if let Ok(device) = device {

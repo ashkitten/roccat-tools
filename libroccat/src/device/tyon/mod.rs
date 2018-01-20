@@ -24,7 +24,7 @@ impl Tyon {
 
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8, Error> {
-        unsafe { Ok(Profile::read(&self.get_interface(Interface::Primary))?.index + 1) }
+        unsafe { Ok(Profile::read(self.get_interface(Interface::Primary))?.index + 1) }
     }
 
     /// Sets the current profile
@@ -35,7 +35,7 @@ impl Tyon {
                 "Profile {} is out of range",
                 index
             );
-            Profile::new(index - 1).write(&self.get_interface(Interface::Primary))
+            Profile::new(index - 1).write(self.get_interface(Interface::Primary))
         }
     }
 
