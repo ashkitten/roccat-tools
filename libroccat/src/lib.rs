@@ -2,31 +2,25 @@
 
 extern crate bitfield;
 #[macro_use]
-extern crate error_chain;
+extern crate failure;
 extern crate futures;
 #[macro_use]
 extern crate hidraw_derive;
 extern crate libudev;
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate nix;
 
 pub mod device;
-mod errors {
-    error_chain! {
-        foreign_links {
-            UdevError(::libudev::Error);
-            IoError(::std::io::Error);
-            NixError(::nix::Error);
-        }
-    }
-}
 
-pub use errors::*;
+use failure::Error;
+
 use device::Device;
 use device::ryosmkfx::RyosMkFx;
 use device::tyon::Tyon;
 
-pub fn find_devices() -> Result<Vec<Device>> {
+pub fn find_devices() -> Result<Vec<Device>, Error> {
     let context = libudev::Context::new().unwrap();
     let mut enumerator = libudev::Enumerator::new(&context)?;
     enumerator.match_subsystem("usb")?;
@@ -34,7 +28,7 @@ pub fn find_devices() -> Result<Vec<Device>> {
     Ok(enumerator
         .scan_devices()?
         .filter(|parent| parent.attribute_value("idProduct").is_some())
-        .map(|parent| -> Result<Device> {
+        .map(|parent| -> Result<Device, Error> {
             let mut enumerator = libudev::Enumerator::new(&context)?;
             enumerator.match_subsystem("hidraw")?;
             enumerator.match_parent(&parent)?;
@@ -87,7 +81,7 @@ pub fn find_devices() -> Result<Vec<Device>> {
                         .collect(),
                 )?)),
                 _ => None,
-            }.ok_or("Incompatible Roccat device".into())
+            }.ok_or(format_err!("Incompatible Roccat device"))
         })
         .filter_map(|device| {
             if let Ok(device) = device {

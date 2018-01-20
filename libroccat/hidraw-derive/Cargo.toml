@@ -4,6 +4,7 @@ name = "hidraw-derive"
 version = "0.1.0"
 
 [dependencies]
+failure = "0.1.1"
 quote = "0.3.15"
 syn = { version = "0.11.11", features = ["full"] }
 

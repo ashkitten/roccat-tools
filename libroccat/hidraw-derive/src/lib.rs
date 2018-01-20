@@ -1,4 +1,5 @@
 #![recursion_limit = "128"]
+extern crate failure;
 extern crate proc_macro;
 #[macro_use]
 extern crate quote;
@@ -35,7 +36,7 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
 
             ioctl!(readwrite __hidraw_read with b'H', 0x07; Self);
 
-            pub unsafe fn read(interface: &::std::fs::File) -> Result<Self> {
+            pub unsafe fn read(interface: &::std::fs::File) -> Result<Self, ::failure::Error> {
                 use std::os::unix::io::AsRawFd;
 
                 let mut data = Self {
@@ -84,7 +85,7 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
         impl #name {
             ioctl!(readwrite __hidraw_write with b'H', 0x06; Self);
 
-            pub unsafe fn write(self, interface: &::std::fs::File) -> Result<()> {
+            pub unsafe fn write(self, interface: &::std::fs::File) -> Result<(), ::failure::Error> {
                 use std::os::unix::io::AsRawFd;
 
                 let mut data = Self {

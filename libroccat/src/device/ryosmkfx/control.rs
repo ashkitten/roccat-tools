@@ -1,6 +1,5 @@
+use failure::Error;
 use std::fs::File;
-
-use errors::*;
 
 #[repr(u8)]
 pub enum ControlRequest {
@@ -44,7 +43,7 @@ impl Control {
         }
     }
 
-    pub fn check_write(interface: &File) -> Result<()> {
+    pub fn check_write(interface: &File) -> Result<(), Error> {
         unsafe {
             loop {
                 use std::thread::sleep;

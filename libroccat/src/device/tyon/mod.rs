@@ -1,14 +1,13 @@
+use failure::Error;
 use std::fs::File;
 use std::path::PathBuf;
-
-use errors::*;
 
 pub struct Tyon {
     interfaces: Vec<File>,
 }
 
 impl Tyon {
-    pub fn new(paths: Vec<PathBuf>) -> Result<Self> {
+    pub fn new(paths: Vec<PathBuf>) -> Result<Self, Error> {
         let mut interfaces = Vec::new();
         for path in paths {
             interfaces.push(File::open(path)?);
@@ -24,12 +23,12 @@ impl Tyon {
     }
 
     /// Gets the current profile
-    pub fn get_profile(&self) -> Result<u8> {
+    pub fn get_profile(&self) -> Result<u8, Error> {
         unsafe { Ok(Profile::read(&self.get_interface(Interface::Primary))?.index + 1) }
     }
 
     /// Sets the current profile
-    pub fn set_profile(&self, index: u8) -> Result<()> {
+    pub fn set_profile(&self, index: u8) -> Result<(), Error> {
         unsafe {
             ensure!(
                 index >= 1 && index <= 5,

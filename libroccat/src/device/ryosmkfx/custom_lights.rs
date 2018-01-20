@@ -1,7 +1,6 @@
 use bitfield::*;
 use std::fmt;
 
-use errors::*;
 use super::hardware_color::*;
 use super::sdk::*;
 

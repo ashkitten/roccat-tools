@@ -7,6 +7,7 @@ mod sdk;
 mod event;
 mod keys;
 
+use failure::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
@@ -21,7 +22,6 @@ pub use self::light_control::*;
 pub use self::sdk::*;
 pub use self::event::*;
 pub use self::keys::*;
-use errors::*;
 
 pub struct RyosMkFx {
     interfaces: Arc<Mutex<Vec<File>>>,
@@ -29,7 +29,7 @@ pub struct RyosMkFx {
 }
 
 impl RyosMkFx {
-    pub fn new(paths: Vec<PathBuf>) -> Result<Self> {
+    pub fn new(paths: Vec<PathBuf>) -> Result<Self, Error> {
         let mut interfaces = Vec::new();
         for path in paths {
             interfaces.push(File::open(path)?);
@@ -64,7 +64,7 @@ impl RyosMkFx {
         Ok(device)
     }
 
-    pub fn get_interface(&self, interface: Interface) -> Result<File> {
+    pub fn get_interface(&self, interface: Interface) -> Result<File, Error> {
         let guard = self.interfaces.lock().unwrap();
         Ok((*guard)[interface as usize].try_clone()?)
     }
@@ -79,7 +79,7 @@ impl RyosMkFx {
     }
 
     /// Gets the current profile
-    pub fn get_profile(&self) -> Result<u8> {
+    pub fn get_profile(&self) -> Result<u8, Error> {
         unsafe {
             // Numbering starts from 16 for some reason in the API
             Ok(Profile::read(&self.get_interface(Interface::Primary)?)?.index - 15)
@@ -87,7 +87,7 @@ impl RyosMkFx {
     }
 
     /// Sets the current profile
-    pub fn set_profile(&self, index: u8) -> Result<()> {
+    pub fn set_profile(&self, index: u8) -> Result<(), Error> {
         unsafe {
             ensure!(
                 index >= 1 && index <= 5,
@@ -99,11 +99,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn get_info(&self) -> Result<DeviceInfo> {
+    pub fn get_info(&self) -> Result<DeviceInfo, Error> {
         unsafe { DeviceInfo::read(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn get_lights(&self, profile: u8) -> Result<Lights> {
+    pub fn get_lights(&self, profile: u8) -> Result<Lights, Error> {
         unsafe {
             Control::new(profile, ControlRequest::Light as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -113,7 +113,7 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_lights(&self, lights: &Lights) -> Result<()> {
+    pub fn set_lights(&self, lights: &Lights) -> Result<(), Error> {
         unsafe {
             lights
                 .clone()
@@ -121,7 +121,7 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_custom_lights_active(&self, active: bool) -> Result<()> {
+    pub fn set_custom_lights_active(&self, active: bool) -> Result<(), Error> {
         unsafe {
             let state = if active {
                 LightControlState::Custom
@@ -132,7 +132,7 @@ impl RyosMkFx {
         }
     }
 
-    pub fn get_custom_lights_active(&self) -> Result<bool> {
+    pub fn get_custom_lights_active(&self) -> Result<bool, Error> {
         unsafe {
             Ok(
                 match LightControl::read(&self.get_interface(Interface::Primary)?)?.state {
@@ -143,11 +143,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn get_custom_lights(&self) -> Result<CustomLights> {
+    pub fn get_custom_lights(&self) -> Result<CustomLights, Error> {
         unsafe { CustomLights::read(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn set_custom_lights(&self, custom_lights: &CustomLights) -> Result<()> {
+    pub fn set_custom_lights(&self, custom_lights: &CustomLights) -> Result<(), Error> {
         unsafe {
             custom_lights
                 .clone()
@@ -156,7 +156,7 @@ impl RyosMkFx {
         }
     }
 
-    pub fn get_keys_primary(&self, profile: u8) -> Result<KeysPrimary> {
+    pub fn get_keys_primary(&self, profile: u8) -> Result<KeysPrimary, Error> {
         unsafe {
             Control::new(profile, ControlRequest::KeysPrimary as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -166,11 +166,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_keys_primary(&self, keys: KeysPrimary) -> Result<()> {
+    pub fn set_keys_primary(&self, keys: KeysPrimary) -> Result<(), Error> {
         unsafe { keys.write(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn get_keys_function(&self, profile: u8) -> Result<KeysFunction> {
+    pub fn get_keys_function(&self, profile: u8) -> Result<KeysFunction, Error> {
         unsafe {
             Control::new(profile, ControlRequest::KeysFunction as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -180,11 +180,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_keys_function(&self, keys: KeysFunction) -> Result<()> {
+    pub fn set_keys_function(&self, keys: KeysFunction) -> Result<(), Error> {
         unsafe { keys.write(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn get_keys_macro(&self, profile: u8) -> Result<KeysMacro> {
+    pub fn get_keys_macro(&self, profile: u8) -> Result<KeysMacro, Error> {
         unsafe {
             Control::new(profile, ControlRequest::KeysMacro as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -194,11 +194,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_keys_macro(&self, keys: KeysMacro) -> Result<()> {
+    pub fn set_keys_macro(&self, keys: KeysMacro) -> Result<(), Error> {
         unsafe { keys.write(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn get_keys_thumbster(&self, profile: u8) -> Result<KeysThumbster> {
+    pub fn get_keys_thumbster(&self, profile: u8) -> Result<KeysThumbster, Error> {
         unsafe {
             Control::new(profile, ControlRequest::KeysThumbster as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -208,11 +208,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_keys_thumbster(&self, keys: KeysThumbster) -> Result<()> {
+    pub fn set_keys_thumbster(&self, keys: KeysThumbster) -> Result<(), Error> {
         unsafe { keys.write(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn get_keys_extra(&self, profile: u8) -> Result<KeysExtra> {
+    pub fn get_keys_extra(&self, profile: u8) -> Result<KeysExtra, Error> {
         unsafe {
             Control::new(profile, ControlRequest::KeysExtra as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -222,11 +222,11 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_keys_extra(&self, keys: KeysExtra) -> Result<()> {
+    pub fn set_keys_extra(&self, keys: KeysExtra) -> Result<(), Error> {
         unsafe { keys.write(&self.get_interface(Interface::Primary)?) }
     }
 
-    pub fn get_keys_easyzone(&self, profile: u8) -> Result<KeysEasyzone> {
+    pub fn get_keys_easyzone(&self, profile: u8) -> Result<KeysEasyzone, Error> {
         unsafe {
             Control::new(profile, ControlRequest::KeysEasyzone as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
@@ -236,7 +236,7 @@ impl RyosMkFx {
         }
     }
 
-    pub fn set_keys_easyzone(&self, keys: KeysEasyzone) -> Result<()> {
+    pub fn set_keys_easyzone(&self, keys: KeysEasyzone) -> Result<(), Error> {
         unsafe { keys.write(&self.get_interface(Interface::Primary)?) }
     }
 }

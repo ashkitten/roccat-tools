@@ -5,7 +5,6 @@ use std;
 
 pub use self::defaults::*;
 use device::button::*;
-use errors::*;
 
 #[derive(HidrawRead, HidrawWrite, Copy, Clone)]
 #[repr(C, packed)]

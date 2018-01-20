@@ -1,4 +1,4 @@
-use errors::*;
+use failure::Error;
 use libroccat;
 use rlua::prelude::*;
 use std::fs::File;
@@ -7,7 +7,7 @@ use std::io::prelude::*;
 use std::path::Path;
 use std;
 
-pub fn run_script(path: &str) -> Result<()> {
+pub fn run_script(path: &str) -> Result<(), Error> {
     let lua = Lua::new();
     lua.globals().set("libroccat", Libroccat)?;
 

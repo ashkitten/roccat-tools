@@ -1,6 +1,5 @@
+use failure::Error;
 use std::fs::File;
-
-use errors::*;
 
 #[derive(Clone, Debug)]
 #[repr(u8)]
@@ -36,7 +35,7 @@ impl LightControl {
         }
     }
 
-    pub fn check_write(file: &File) -> Result<()> {
+    pub fn check_write(file: &File) -> Result<(), Error> {
         unsafe {
             loop {
                 use std::thread::sleep;

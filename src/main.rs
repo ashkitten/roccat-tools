@@ -1,35 +1,21 @@
 #![feature(type_ascription)]
 
 extern crate clap;
+extern crate env_logger;
 #[macro_use]
-extern crate error_chain;
+extern crate failure;
 extern crate libroccat;
+#[macro_use]
+extern crate log;
 extern crate rlua;
 
 mod libroccat_lua;
 
-mod errors {
-    error_chain! {
-        links {
-            LibroccatError(::libroccat::Error, ::libroccat::ErrorKind);
-        }
-
-        foreign_links {
-            RLuaError(::rlua::Error);
-            StdIoError(::std::io::Error);
-            StdParseIntError(::std::num::ParseIntError);
-        }
-    }
-
-    unsafe impl Sync for Error {}
-}
-
 use clap::{App, SubCommand};
+use failure::{Error, ResultExt};
 use std::thread;
 
-use errors::*;
-
-quick_main!(|| -> Result<()> {
+fn run() -> Result<(), Error> {
     #[cfg_attr(rustfmt, rustfmt_skip)]
     let matches = App::new("roccat-tools")
         .author("Ash Lea <ashlea@protonmail.com>")
@@ -86,9 +72,9 @@ quick_main!(|| -> Result<()> {
             .value_of("device")
             .unwrap()
             .parse::<usize>()
-            .chain_err(|| "Device must be an integer")?;
+            .context("Device must be an integer")?;
         let device = libroccat::find_devices()
-            .chain_err(|| "Device index out of range")?
+            .context("Device index out of range")?
             .remove(device_index);
 
         println!(
@@ -106,9 +92,9 @@ quick_main!(|| -> Result<()> {
             .value_of("device")
             .unwrap()
             .parse::<usize>()
-            .chain_err(|| "Device must be an integer")?;
+            .context("Device must be an integer")?;
         let device = libroccat::find_devices()
-            .chain_err(|| "Device index out of range")?
+            .context("Device index out of range")?
             .remove(device_index);
         let value = matches.value_of("value").unwrap();
 
@@ -122,4 +108,40 @@ quick_main!(|| -> Result<()> {
     }
 
     Ok(())
-});
+}
+
+fn main() {
+    use std::io::Write;
+
+    env_logger::init().expect("Failed to initialize logger");
+
+    std::process::exit(match run() {
+        Ok(()) => 0,
+        Err(ref error) => {
+            let mut causes = error.causes();
+
+            error!(
+                "{}",
+                causes
+                    .next()
+                    .expect("`causes` should contain at least one error")
+            );
+            for cause in causes {
+                error!("Caused by: {}", cause);
+            }
+
+            let backtrace = format!("{}", error.backtrace());
+            if backtrace.is_empty() {
+                writeln!(
+                    ::std::io::stderr(),
+                    "Set RUST_BACKTRACE=1 to see a backtrace"
+                ).expect("Could not write to stderr");
+            } else {
+                writeln!(::std::io::stderr(), "{}", error.backtrace())
+                    .expect("Could not write to stderr");
+            }
+
+            1
+        }
+    });
+}
