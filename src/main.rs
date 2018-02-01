@@ -113,7 +113,7 @@ fn run() -> Result<(), Error> {
 fn main() {
     use std::io::Write;
 
-    env_logger::init().expect("Failed to initialize logger");
+    env_logger::try_init().expect("Failed to initialize logger");
 
     std::process::exit(match run() {
         Ok(()) => 0,

@@ -32,7 +32,7 @@ struct Libroccat;
 impl LuaUserData for Libroccat {
     fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
         methods.add_function("find_devices", |lua, ()| {
-            let table = lua.create_table();
+            let table = lua.create_table()?;
             for (i, device) in libroccat::find_devices().unwrap().into_iter().enumerate() {
                 match device {
                     libroccat::device::Device::RyosMkFx(device) => {
@@ -59,7 +59,7 @@ impl RyosMkFx {
                                           EventRadSubtype, EventType};
 
         if let Some(event) = self.0.get_event() {
-            let table = lua.create_table();
+            let table = lua.create_table()?;
             if event.type_ == EventType::Rad {
                 table.set(
                     "subtype",
@@ -187,7 +187,7 @@ impl LuaUserData for RyosMkFx {
             use libroccat::device::ryosmkfx::*;
 
             let lights = this.0.get_lights(profile).unwrap();
-            let table = lua.create_table();
+            let table = lua.create_table()?;
             table.set("brightness", lights.brightness)?;
             table.set("dimness", lights.dimness)?;
             table.set("timeout", lights.timeout)?;
@@ -338,10 +338,10 @@ impl LuaUserData for RyosMkFx {
 
         methods.add_method("get_custom_lights", |lua, this, ()| {
             let data = this.0.get_custom_lights().unwrap().light_layer.get_data();
-            let table = lua.create_table();
+            let table = lua.create_table()?;
 
             for i in 0..120 {
-                let key_table = lua.create_table();
+                let key_table = lua.create_table()?;
 
                 key_table.set("state", data.get_key_state(i))?;
                 key_table.set("red", data.get_key_red(i))?;

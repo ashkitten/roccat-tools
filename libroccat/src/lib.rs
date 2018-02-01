@@ -1,4 +1,6 @@
-#![feature(const_size_of, try_from, type_ascription)]
+#![feature(try_from, type_ascription)]
+// Keep clippy from complaining about format_err! without format args
+#![cfg_attr(feature = "cargo-clippy", allow(useless_format))]
 
 extern crate bitfield;
 #[macro_use]
