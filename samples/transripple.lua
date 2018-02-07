@@ -1,12 +1,14 @@
+-- luacheck: globals libroccat
+
 -- Shamelessly adapted from the original roccat-tools ripple script
 
 -- config
 
-BLUE = { state = true, red = 0x5b, green = 0xce, blue = 0xfa }
-PINK = { state = true, red = 0xf5, green = 0xa9, blue = 0xb8 }
-WHITE = { state = true, red = 0xff, green = 0xff, blue = 0xff }
+local BLUE = { state = true, red = 0x5b, green = 0xce, blue = 0xfa }
+local PINK = { state = true, red = 0xf5, green = 0xa9, blue = 0xb8 }
+local WHITE = { state = true, red = 0xff, green = 0xff, blue = 0xff }
 
-KEY_COLORS = {
+local KEY_COLORS = {
     [  0] = BLUE,  [  1] = BLUE,  [  2] = BLUE,  [  3] = BLUE,  [  4] = BLUE,  [  5] = BLUE,
     [  6] = BLUE,  [  7] = BLUE,  [  8] = BLUE,  [  9] = BLUE,  [ 10] = BLUE,  [ 11] = BLUE,
     [ 12] = BLUE,  [ 13] = BLUE,  [ 14] = BLUE,  [ 15] = BLUE,  [ 16] = PINK,  [ 17] = PINK,
@@ -28,7 +30,7 @@ KEY_COLORS = {
     [108] = BLUE,  [109] = BLUE,
 }
 
-RIPPLE_COLORS = {
+local RIPPLE_COLORS = {
     { state = true, red = 0xff, green = 0x00, blue = 0x00 },
     { state = true, red = 0x00, green = 0x80, blue = 0x00 },
     { state = true, red = 0xff, green = 0xff, blue = 0x00 },
@@ -39,11 +41,11 @@ RIPPLE_COLORS = {
 
 -- helpers
 
-MATRIX_ROWS = 25
-MATRIX_COLS = 95
-KEY_WIDTH = 4
+local MATRIX_ROWS = 25
+local MATRIX_COLS = 95
+local KEY_WIDTH = 4
 
-KEYS = {
+local KEYS = {
     [0]   = {x =  7, y =  2}, [1]   = {x = 15, y =  2}, [2]   = {x = 19, y =  2}, [3]   = {x = 23, y =  2},
     [4]   = {x = 27, y =  2}, [5]   = {x = 33, y =  2}, [6]   = {x = 37, y =  2}, [7]   = {x = 41, y =  2},
     [8]   = {x = 45, y =  2}, [9]   = {x = 51, y =  2}, [10]  = {x = 55, y =  2}, [11]  = {x = 59, y =  2},
@@ -74,48 +76,32 @@ KEYS = {
     [108] = {x = 83, y = 23}, [109] = {x = 89, y = 23},
 }
 
-local function init_light_position_matrix()
-    local light_position_matrix = {}
+local LIGHT_POSITION_MATRIX = {}
 
-    for sdk, position in pairs(KEYS) do
-        local base = position.x - 2 + (position.y - 2) * MATRIX_COLS
+for sdk, position in pairs(KEYS) do
+    local base = position.x - 2 + (position.y - 2) * MATRIX_COLS
 
-        light_position_matrix[base + 1] = sdk
-        light_position_matrix[base + 2] = sdk
+    LIGHT_POSITION_MATRIX[base + 1] = sdk
+    LIGHT_POSITION_MATRIX[base + 2] = sdk
 
-        base = base + MATRIX_COLS
+    base = base + MATRIX_COLS
 
-        light_position_matrix[base    ] = sdk
-        light_position_matrix[base + 1] = sdk
-        light_position_matrix[base + 2] = sdk
-        light_position_matrix[base + 3] = sdk
+    LIGHT_POSITION_MATRIX[base    ] = sdk
+    LIGHT_POSITION_MATRIX[base + 1] = sdk
+    LIGHT_POSITION_MATRIX[base + 2] = sdk
+    LIGHT_POSITION_MATRIX[base + 3] = sdk
 
-        base = base + MATRIX_COLS
+    base = base + MATRIX_COLS
 
-        light_position_matrix[base    ] = sdk
-        light_position_matrix[base + 1] = sdk
-        light_position_matrix[base + 2] = sdk
-        light_position_matrix[base + 3] = sdk
+    LIGHT_POSITION_MATRIX[base    ] = sdk
+    LIGHT_POSITION_MATRIX[base + 1] = sdk
+    LIGHT_POSITION_MATRIX[base + 2] = sdk
+    LIGHT_POSITION_MATRIX[base + 3] = sdk
 
-        base = base + MATRIX_COLS
+    base = base + MATRIX_COLS
 
-        light_position_matrix[base + 1] = sdk
-        light_position_matrix[base + 2] = sdk
-    end
-
-    return light_position_matrix
-end
-
--- Sets corresponding key in array if any.
-local function set_led(leds, x, y)
-    if y >= MATRIX_ROWS or y < 0 or x >= MATRIX_COLS or x < 0 then
-        return
-    end
-
-    sdk = light_position_matrix[x + y * MATRIX_COLS]
-    if sdk then
-        table.insert(leds, sdk)
-    end
+    LIGHT_POSITION_MATRIX[base + 1] = sdk
+    LIGHT_POSITION_MATRIX[base + 2] = sdk
 end
 
 -- QUOTE Midpoint circle algorithm inspired by Perone's programming pad
@@ -124,7 +110,19 @@ end
 --
 -- Returns set of sdk key index to set/clear.
 local function draw_circle(center, radius)
-    local radius = radius * KEY_WIDTH
+    -- Sets corresponding key in array if any.
+    local function set_led(leds, x, y)
+        if y >= MATRIX_ROWS or y < 0 or x >= MATRIX_COLS or x < 0 then
+            return
+        end
+
+        local sdk = LIGHT_POSITION_MATRIX[x + y * MATRIX_COLS]
+        if sdk then
+            table.insert(leds, sdk)
+        end
+    end
+
+    radius = radius * KEY_WIDTH
     local leds = {}
 
     if radius < 1 then
@@ -167,7 +165,7 @@ local function draw_circle(center, radius)
     return leds
 end
 
-function table.shallow_copy(t)
+local function shallow_copy(t)
     local t2 = {}
     for k, v in pairs(t) do
         t2[k] = v
@@ -175,7 +173,7 @@ function table.shallow_copy(t)
     return t2
 end
 
-function ryosmkfx_init_lights(ryosmkfx)
+local function ryosmkfx_init_lights(ryosmkfx)
     ryosmkfx.profile = ryosmkfx.device:get_profile()
     if ryosmkfx.profile == 1 then
         ryosmkfx.device:set_custom_lights_active(true)
@@ -187,16 +185,15 @@ end
 
 -- init
 
-devices = { ryosmkfx = {} }
-light_position_matrix = init_light_position_matrix()
+local devices = { ryosmkfx = {} }
 
-for i, device in ipairs(libroccat.find_devices()) do
+for _, device in pairs(libroccat.find_devices()) do
     if device:name() == "ryos_mk_fx" then
         devices.ryosmkfx[#devices.ryosmkfx + 1] = {
             device = device,
             profile = device:get_profile(),
             ripples = {},
-            leds = table.shallow_copy(KEY_COLORS),
+            leds = shallow_copy(KEY_COLORS),
         }
 
         ryosmkfx_init_lights(devices.ryosmkfx[#devices.ryosmkfx])
@@ -206,9 +203,9 @@ end
 -- event loop
 
 while true do
-    for i, ryosmkfx in pairs(devices.ryosmkfx) do
+    for _, ryosmkfx in pairs(devices.ryosmkfx) do
         while true do
-            local event, time = ryosmkfx.device:get_event_immediate()
+            local event = ryosmkfx.device:get_event_immediate()
 
             if event then
                 if event.type == "profile_start" then
@@ -240,12 +237,12 @@ while true do
             end
 
             if #ryosmkfx.ripples > 0 then
-                ryosmkfx.leds = table.shallow_copy(KEY_COLORS)
+                ryosmkfx.leds = shallow_copy(KEY_COLORS)
 
                 for _, ripple in pairs(ryosmkfx.ripples) do
                     for i, color in ipairs(RIPPLE_COLORS) do
                         if i <= ripple.radius then
-                            leds = draw_circle(ripple.center, ripple.radius - i)
+                            local leds = draw_circle(ripple.center, ripple.radius - i)
                             for _, led in pairs(leds) do
                                 ryosmkfx.leds[led] = color
                             end
