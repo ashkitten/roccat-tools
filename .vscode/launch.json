@@ -1,0 +1,93 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests in libroccat",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib"
+                ]
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug main",
+            "cargo": {
+                "args": [
+                    "build",
+                ]
+            },
+            "args": [
+                "run",
+                "/home/ash/dotfiles/dotfiles/unlinked/roccat/transripple.lua",
+                "/home/ash/dotfiles/dotfiles/unlinked/roccat/windowmonitor.lua"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests in main",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=main"
+                ]
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests in bitfield",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib"
+                ]
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug roccat-tools",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=roccat-tools"
+                ]
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests in roccat-tools",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=roccat-tools"
+                ]
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

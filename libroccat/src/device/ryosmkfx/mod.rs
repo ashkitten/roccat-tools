@@ -105,7 +105,7 @@ impl RyosMkFx {
 
     pub fn get_lights(&self, profile: u8) -> Result<Lights, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::Light as u8)
+            Control::new(profile - 1, ControlRequest::Light as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
@@ -115,9 +115,9 @@ impl RyosMkFx {
 
     pub fn set_lights(&self, lights: &Lights) -> Result<(), Error> {
         unsafe {
-            lights
-                .clone()
-                .write(&self.get_interface(Interface::Primary)?)
+            let mut lights = lights.clone();
+            lights.profile -= 1;
+            lights.write(&self.get_interface(Interface::Primary)?)
         }
     }
 
@@ -158,7 +158,7 @@ impl RyosMkFx {
 
     pub fn get_keys_primary(&self, profile: u8) -> Result<KeysPrimary, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::KeysPrimary as u8)
+            Control::new(profile - 1, ControlRequest::KeysPrimary as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
@@ -172,7 +172,7 @@ impl RyosMkFx {
 
     pub fn get_keys_function(&self, profile: u8) -> Result<KeysFunction, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::KeysFunction as u8)
+            Control::new(profile - 1, ControlRequest::KeysFunction as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
@@ -186,7 +186,7 @@ impl RyosMkFx {
 
     pub fn get_keys_macro(&self, profile: u8) -> Result<KeysMacro, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::KeysMacro as u8)
+            Control::new(profile - 1, ControlRequest::KeysMacro as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
@@ -200,7 +200,7 @@ impl RyosMkFx {
 
     pub fn get_keys_thumbster(&self, profile: u8) -> Result<KeysThumbster, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::KeysThumbster as u8)
+            Control::new(profile - 1, ControlRequest::KeysThumbster as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
@@ -214,7 +214,7 @@ impl RyosMkFx {
 
     pub fn get_keys_extra(&self, profile: u8) -> Result<KeysExtra, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::KeysExtra as u8)
+            Control::new(profile - 1, ControlRequest::KeysExtra as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
@@ -228,7 +228,7 @@ impl RyosMkFx {
 
     pub fn get_keys_easyzone(&self, profile: u8) -> Result<KeysEasyzone, Error> {
         unsafe {
-            Control::new(profile, ControlRequest::KeysEasyzone as u8)
+            Control::new(profile - 1, ControlRequest::KeysEasyzone as u8)
                 .write(&self.get_interface(Interface::Primary)?)?;
             Control::check_write(&self.get_interface(Interface::Primary)?)?;
 
