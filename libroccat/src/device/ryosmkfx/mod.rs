@@ -7,6 +7,7 @@ mod sdk;
 mod event;
 mod keys;
 
+use bitfield::NibbleField;
 use failure::Error;
 use std::fs::File;
 use std::io::prelude::*;
@@ -80,8 +81,7 @@ impl RyosMkFx {
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8, Error> {
         unsafe {
-            // Numbering starts from 16 for some reason in the API
-            Ok(Profile::read(&self.get_interface(Interface::Primary)?)?.index - 15)
+            Ok(Profile::read(&self.get_interface(Interface::Primary)?)?.index.get_nibble(0) + 1)
         }
     }
 
@@ -93,8 +93,9 @@ impl RyosMkFx {
                 "Profile {} is out of range",
                 index
             );
-            // Numbering starts from 16 for some reason in the API
-            Profile::new(index + 15).write(&self.get_interface(Interface::Primary)?)
+            let mut profile = Profile::read(&self.get_interface(Interface::Primary)?)?.index;
+            profile.set_nibble(0, index - 1);
+            Profile::new(profile).write(&self.get_interface(Interface::Primary)?)
         }
     }
 
@@ -252,6 +253,8 @@ pub struct Profile {
     _report_id: u8,
     #[hidraw_constant = "::std::mem::size_of::<Self>() as u8"]
     _size: u8,
+    // first nibble: number of profiles enabled
+    // second nibble: index of current profile
     pub index: u8,
 }
 

@@ -80,7 +80,7 @@ macro_rules! nibblefield_impl {
             fn get_nibble(&self, index: usize) -> u8 {
                 assert!(index < Self::nibble_length());
 
-                (*self << (index * 4)) as u8 & 0x0f
+                (*self >> (index * 4)) as u8 & 0x0f
             }
 
             fn set_nibble(&mut self, index: usize, value: u8) -> &mut Self {
@@ -101,8 +101,9 @@ macro_rules! nibblefield_impl {
 #[cfg(test)]
 #[test]
 fn nibble() {
-    println!("{:08b}", 0b00000001u8.set_nibble(1, 0b1111));
-    println!("{:08b}", 0b10011001u8.set_nibble(0, 0b0110));
+    assert_eq!(0b0110, 0b10010110u8.get_nibble(0));
+    assert_eq!(&mut 0b00001111u8, 0b00000001u8.set_nibble(0, 0b1111));
+    assert_eq!(&mut 0b01101001u8, 0b10011001u8.set_nibble(1, 0b0110));
 }
 
 nibblefield_impl! { u8 u16 u32 u64 usize }
