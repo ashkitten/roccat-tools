@@ -58,6 +58,25 @@ impl<T: BitField> BitArray<T> for [T] {
     }
 }
 
+#[cfg(test)]
+#[test]
+fn bit() {
+    assert_eq!(false, 0b11111110u8.get_bit(0));
+    assert_eq!(false, 0b11110111u8.get_bit(3));
+    assert_eq!(&mut 0b11111101u8, 0b11111111.set_bit(1, false));
+    assert_eq!(&mut 0b11011111u8, 0b11111111.set_bit(5, false));
+}
+
+#[cfg(test)]
+#[test]
+fn bitfield() {
+    assert_eq!(false, 0b11111111_11111101u16.get_bit(1));
+    assert_eq!(false, 0b10111111_11111111u16.get_bit(14));
+    assert_eq!(&mut 0b11111111_11110111u16, 0b11111111_11111111.set_bit(3, false));
+    assert_eq!(&mut 0b10111111_11111111u16, 0b11111111_11111111.set_bit(14, false));
+}
+
+
 pub trait NibbleField {
     fn nibble_length() -> usize;
     fn get_nibble(&self, index: usize) -> u8;
@@ -98,14 +117,6 @@ macro_rules! nibblefield_impl {
     )*)
 }
 
-#[cfg(test)]
-#[test]
-fn nibble() {
-    assert_eq!(0b0110, 0b10010110u8.get_nibble(0));
-    assert_eq!(&mut 0b00001111u8, 0b00000001u8.set_nibble(0, 0b1111));
-    assert_eq!(&mut 0b01101001u8, 0b10011001u8.set_nibble(1, 0b0110));
-}
-
 nibblefield_impl! { u8 u16 u32 u64 usize }
 
 impl<T: NibbleField> NibbleArray<T> for [T] {
@@ -124,4 +135,22 @@ impl<T: NibbleField> NibbleArray<T> for [T] {
         let nibble_index = index % T::nibble_length();
         self[slice_index].set_nibble(nibble_index, value);
     }
+}
+
+#[cfg(test)]
+#[test]
+fn nibble() {
+    assert_eq!(0x0, 0xF0u8.get_nibble(0));
+    assert_eq!(0x0, 0x0Fu8.get_nibble(1));
+    assert_eq!(&mut 0xF0u8, 0xFF.set_nibble(0, 0x0));
+    assert_eq!(&mut 0x0Fu8, 0xFF.set_nibble(1, 0x0));
+}
+
+#[cfg(test)]
+#[test]
+fn nibblefield() {
+    assert_eq!(0x0, 0xFF0Fu16.get_nibble(1));
+    assert_eq!(0x0, 0x0FFFu16.get_nibble(3));
+    assert_eq!(&mut 0xFF0Fu16, 0xFFFF.set_nibble(1, 0x0));
+    assert_eq!(&mut 0x0FFFu16, 0xFFFF.set_nibble(3, 0x0));
 }
