@@ -1,4 +1,4 @@
-use device::button::*;
+use crate::device::button::*;
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
 pub const DEFAULT_KEYS_PRIMARY: [u8; 120] = [

@@ -1,8 +1,7 @@
+use super::{hardware_color::*, sdk::*};
 use bitfield::*;
+use hidraw_derive::{HidrawRead, HidrawWrite};
 use std::fmt;
-
-use super::hardware_color::*;
-use super::sdk::*;
 
 #[derive(Copy, Clone)]
 #[repr(C, packed)]
@@ -42,7 +41,8 @@ impl fmt::Debug for LightLayer {
         fmt.debug_struct("LightLayer")
             .field(
                 "states",
-                &self.states
+                &self
+                    .states
                     .iter()
                     .flat_map(|b| {
                         vec![
@@ -60,21 +60,24 @@ impl fmt::Debug for LightLayer {
             )
             .field(
                 "numbers_red",
-                &self.numbers_red
+                &self
+                    .numbers_red
                     .iter()
                     .flat_map(|b| vec![b.get_nibble(0), b.get_nibble(1)])
                     .collect::<Vec<u8>>(),
             )
             .field(
                 "numbers_green",
-                &self.numbers_green
+                &self
+                    .numbers_green
                     .iter()
                     .flat_map(|b| vec![b.get_nibble(0), b.get_nibble(1)])
                     .collect::<Vec<u8>>(),
             )
             .field(
                 "numbers_blue",
-                &self.numbers_blue
+                &self
+                    .numbers_blue
                     .iter()
                     .flat_map(|b| vec![b.get_nibble(0), b.get_nibble(1)])
                     .collect::<Vec<u8>>(),
@@ -84,21 +87,24 @@ impl fmt::Debug for LightLayer {
             .field("colors_blue_pwm", &self.colors_blue_pwm)
             .field(
                 "colors_red_brightness",
-                &self.colors_red_brightness
+                &self
+                    .colors_red_brightness
                     .iter()
                     .flat_map(|b| vec![b.get_nibble(0), b.get_nibble(1)])
                     .collect::<Vec<u8>>(),
             )
             .field(
                 "colors_green_brightness",
-                &self.colors_green_brightness
+                &self
+                    .colors_green_brightness
                     .iter()
                     .flat_map(|b| vec![b.get_nibble(0), b.get_nibble(1)])
                     .collect::<Vec<u8>>(),
             )
             .field(
                 "colors_blue_brightness",
-                &self.colors_blue_brightness
+                &self
+                    .colors_blue_brightness
                     .iter()
                     .flat_map(|b| vec![b.get_nibble(0), b.get_nibble(1)])
                     .collect::<Vec<u8>>(),
@@ -116,7 +122,8 @@ impl LightLayer {
         HardwareColor {
             brightness: self.colors_red_brightness.get_nibble(color_number - 1),
             pwm: self.colors_red_pwm[color_number - 1],
-        }.to_color()
+        }
+        .to_color()
     }
 
     fn set_red(&mut self, color_number: usize, color: u8) {
@@ -134,7 +141,8 @@ impl LightLayer {
         HardwareColor {
             brightness: self.colors_green_brightness.get_nibble(color_number - 1),
             pwm: self.colors_green_pwm[color_number - 1],
-        }.to_color()
+        }
+        .to_color()
     }
 
     fn set_green(&mut self, color_number: usize, color: u8) {
@@ -152,7 +160,8 @@ impl LightLayer {
         HardwareColor {
             brightness: self.colors_blue_brightness.get_nibble(color_number - 1),
             pwm: self.colors_blue_pwm[color_number - 1],
-        }.to_color()
+        }
+        .to_color()
     }
 
     fn set_blue(&mut self, color_number: usize, color: u8) {

@@ -1,4 +1,5 @@
-use failure::Error;
+use failure::{bail, Error};
+use hidraw_derive::{HidrawRead, HidrawWrite};
 use std::fs::File;
 
 #[repr(u8)]
@@ -47,8 +48,7 @@ impl Control {
     pub fn check_write(interface: &File) -> Result<(), Error> {
         unsafe {
             loop {
-                use std::thread::sleep;
-                use std::time::Duration;
+                use std::{thread::sleep, time::Duration};
 
                 sleep(Duration::from_millis(50));
 

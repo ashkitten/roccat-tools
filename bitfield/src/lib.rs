@@ -72,10 +72,15 @@ fn bit() {
 fn bitfield() {
     assert_eq!(false, 0b11111111_11111101u16.get_bit(1));
     assert_eq!(false, 0b10111111_11111111u16.get_bit(14));
-    assert_eq!(&mut 0b11111111_11110111u16, 0b11111111_11111111.set_bit(3, false));
-    assert_eq!(&mut 0b10111111_11111111u16, 0b11111111_11111111.set_bit(14, false));
+    assert_eq!(
+        &mut 0b11111111_11110111u16,
+        0b11111111_11111111.set_bit(3, false)
+    );
+    assert_eq!(
+        &mut 0b10111111_11111111u16,
+        0b11111111_11111111.set_bit(14, false)
+    );
 }
-
 
 pub trait NibbleField {
     fn nibble_length() -> usize;

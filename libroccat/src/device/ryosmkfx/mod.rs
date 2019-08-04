@@ -1,28 +1,27 @@
 mod control;
 mod custom_lights;
-mod hardware_color;
-mod lights;
-mod light_control;
-mod sdk;
 mod event;
+mod hardware_color;
 mod keys;
+mod light_control;
+mod lights;
+mod sdk;
 
 use bitfield::NibbleField;
-use failure::Error;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
-use std::thread;
+use failure::{ensure, Error};
+use hidraw_derive::{HidrawRead, HidrawWrite};
+use std::{
+    fs::File,
+    io::prelude::*,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+    thread,
+};
 
-pub use self::control::*;
-pub use self::custom_lights::*;
-pub use self::hardware_color::*;
-pub use self::lights::*;
-pub use self::light_control::*;
-pub use self::sdk::*;
-pub use self::event::*;
-pub use self::keys::*;
+pub use self::{
+    control::*, custom_lights::*, event::*, hardware_color::*, keys::*, light_control::*,
+    lights::*, sdk::*,
+};
 
 pub struct RyosMkFx {
     interfaces: Arc<Mutex<Vec<File>>>,
@@ -81,7 +80,10 @@ impl RyosMkFx {
     /// Gets the current profile
     pub fn get_profile(&self) -> Result<u8, Error> {
         unsafe {
-            Ok(Profile::read(&self.get_interface(Interface::Primary)?)?.index.get_nibble(0) + 1)
+            Ok(Profile::read(&self.get_interface(Interface::Primary)?)?
+                .index
+                .get_nibble(0)
+                + 1)
         }
     }
 

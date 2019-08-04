@@ -1,12 +1,10 @@
+pub mod button;
 pub mod ryosmkfx;
 pub mod tyon;
-pub mod button;
 
+use self::{ryosmkfx::RyosMkFx, tyon::Tyon};
 use failure::Error;
 use std::convert::TryInto;
-
-use self::ryosmkfx::RyosMkFx;
-use self::tyon::Tyon;
 
 pub enum Device {
     RyosMkFx(RyosMkFx),

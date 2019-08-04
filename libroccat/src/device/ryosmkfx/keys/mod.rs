@@ -1,10 +1,9 @@
 mod defaults;
 
-use std::fmt;
-use std;
-
 pub use self::defaults::*;
-use device::button::*;
+use crate::device::button::*;
+use hidraw_derive::{HidrawRead, HidrawWrite};
+use std::{self, fmt};
 
 #[derive(HidrawRead, HidrawWrite, Copy, Clone)]
 #[repr(C, packed)]

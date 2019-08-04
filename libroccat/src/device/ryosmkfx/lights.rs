@@ -1,3 +1,5 @@
+use hidraw_derive::{HidrawRead, HidrawWrite};
+
 #[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum LightMode {

@@ -1,18 +1,8 @@
-#![feature(type_ascription)]
-
-extern crate clap;
-extern crate env_logger;
-#[macro_use]
-extern crate failure;
-extern crate libroccat;
-#[macro_use]
-extern crate log;
-extern crate rlua;
-
 mod libroccat_lua;
 
 use clap::{App, SubCommand};
-use failure::{Error, ResultExt};
+use failure::{bail, Error, ResultExt};
+use log::error;
 use std::thread;
 
 fn run() -> Result<(), Error> {
@@ -118,7 +108,7 @@ fn main() {
     std::process::exit(match run() {
         Ok(()) => 0,
         Err(ref error) => {
-            let mut causes = error.causes();
+            let mut causes = error.iter_chain();
 
             error!(
                 "{}",
@@ -135,7 +125,8 @@ fn main() {
                 writeln!(
                     ::std::io::stderr(),
                     "Set RUST_BACKTRACE=1 to see a backtrace"
-                ).expect("Could not write to stderr");
+                )
+                .expect("Could not write to stderr");
             } else {
                 writeln!(::std::io::stderr(), "{}", error.backtrace())
                     .expect("Could not write to stderr");

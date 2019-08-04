@@ -1,6 +1,5 @@
-use std::fmt;
-
 use super::effect_index_to_sdk_index;
+use std::fmt;
 
 pub struct Event {
     _report_id: u8,

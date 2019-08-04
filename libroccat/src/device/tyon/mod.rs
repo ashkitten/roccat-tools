@@ -1,6 +1,6 @@
-use failure::Error;
-use std::fs::File;
-use std::path::PathBuf;
+use failure::{ensure, Error};
+use hidraw_derive::{HidrawRead, HidrawWrite};
+use std::{fs::File, path::PathBuf};
 
 pub struct Tyon {
     interfaces: Vec<File>,

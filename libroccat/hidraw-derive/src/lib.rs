@@ -1,11 +1,10 @@
 #![recursion_limit = "128"]
-extern crate proc_macro;
-#[macro_use]
-extern crate quote;
-extern crate syn;
 
-use proc_macro::TokenStream;
-use syn::{Data, DeriveInput, Expr, Field, Ident, Lit, Meta, MetaNameValue, Type, DataStruct};
+extern crate proc_macro;
+
+use crate::proc_macro::TokenStream;
+use quote::quote;
+use syn::{Data, DataStruct, DeriveInput, Expr, Field, Ident, Lit, Meta, MetaNameValue, Type};
 
 #[proc_macro_derive(HidrawRead, attributes(hidraw_constant, hidraw_bytesum))]
 pub fn derive_hid_read(input: TokenStream) -> TokenStream {
@@ -32,20 +31,19 @@ pub fn derive_hid_read(input: TokenStream) -> TokenStream {
 
     let output = quote! {
         impl #name {
+            pub unsafe fn read(interface: &::std::fs::File) -> Result<#name, ::failure::Error> {
+                nix::ioctl_readwrite!(__hidraw_read, b'H', 0x07, #name);
 
-            ioctl!(readwrite __hidraw_read with b'H', 0x07; Self);
-
-            pub unsafe fn read(interface: &::std::fs::File) -> Result<Self, ::failure::Error> {
                 use std::os::unix::io::AsRawFd;
 
-                let mut data = Self {
+                let mut data = #name {
                     #(#const_field_names: #const_field_vals,)*
                     .. ::std::mem::uninitialized()
                 };
 
                 let mut errors = 0;
                 loop {
-                    match Self::__hidraw_read(interface.as_raw_fd(), &mut data) {
+                    match __hidraw_read(interface.as_raw_fd(), &mut data) {
                         Ok(_) => #check_bytesum,
                         Err(error) => {
                             if errors < 10 {
@@ -82,12 +80,12 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
 
     let output = quote! {
         impl #name {
-            ioctl!(readwrite __hidraw_write with b'H', 0x06; Self);
-
             pub unsafe fn write(self, interface: &::std::fs::File) -> Result<(), ::failure::Error> {
+                nix::ioctl_readwrite!(__hidraw_write, b'H', 0x06, #name);
+
                 use std::os::unix::io::AsRawFd;
 
-                let mut data = Self {
+                let mut data = #name {
                     #(#const_field_names: #const_field_vals,)*
                     .. self
                 };
@@ -96,7 +94,7 @@ pub fn derive_hid_write(input: TokenStream) -> TokenStream {
 
                 let mut errors = 0;
                 loop {
-                    match Self::__hidraw_write(interface.as_raw_fd(), &mut data) {
+                    match __hidraw_write(interface.as_raw_fd(), &mut data) {
                         Ok(_) => return Ok(()),
                         Err(error) => {
                             if errors < 10 {
@@ -133,7 +131,9 @@ fn get_const_field(field: &Field) -> Option<(Ident, Expr)> {
         .attrs
         .iter()
         .flat_map(|attr| match attr.interpret_meta() {
-            Some(Meta::NameValue(MetaNameValue { ref ident, ref lit, .. })) if ident == "hidraw_constant" => match *lit {
+            Some(Meta::NameValue(MetaNameValue {
+                ref ident, ref lit, ..
+            })) if ident == "hidraw_constant" => match *lit {
                 Lit::Str(ref lit_str) => {
                     let expr = syn::parse_str(&lit_str.value()).unwrap();
                     Some((name.clone(), expr))

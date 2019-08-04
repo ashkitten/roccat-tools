@@ -1,28 +1,26 @@
 use failure::Error;
 use libroccat;
 use rlua::prelude::*;
-use std::fs::File;
-use std::io::BufReader;
-use std::io::prelude::*;
-use std::path::Path;
-use std;
+use std::{
+    self,
+    fs::File,
+    io::{prelude::*, BufReader},
+};
 
 pub fn run_script(path: &str) -> Result<(), Error> {
     let lua = Lua::new();
-    lua.globals().set("libroccat", Libroccat)?;
+    lua.context(|context| {
+        context.globals().set("libroccat", Libroccat)?;
 
-    let file = File::open(path)?;
-    let mut buf_reader = BufReader::new(file);
-    let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
+        let file = File::open(path).map_err(rlua::Error::external)?;
+        let mut buf_reader = BufReader::new(file);
+        let mut contents = String::new();
+        buf_reader
+            .read_to_string(&mut contents)
+            .map_err(rlua::Error::external)?;
 
-    let file_name = if let Some(file_name) = Path::new(path).file_name() {
-        file_name.to_str()
-    } else {
-        None
-    };
-
-    lua.exec::<()>(&contents, file_name)?;
+        context.load(&contents).exec()
+    })?;
 
     Ok(())
 }
@@ -30,10 +28,14 @@ pub fn run_script(path: &str) -> Result<(), Error> {
 struct Libroccat;
 
 impl LuaUserData for Libroccat {
-    fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_function("find_devices", |lua, ()| {
             let table = lua.create_table()?;
-            for (i, device) in libroccat::find_devices().unwrap().into_iter().enumerate() {
+            for (i, device) in libroccat::find_devices()
+                .map_err(rlua::Error::external)?
+                .into_iter()
+                .enumerate()
+            {
                 match device {
                     libroccat::device::Device::RyosMkFx(device) => {
                         table.set(i + 1, RyosMkFx(device))?
@@ -54,9 +56,10 @@ impl LuaUserData for Libroccat {
 struct RyosMkFx(libroccat::device::ryosmkfx::RyosMkFx);
 
 impl RyosMkFx {
-    fn get_event_table<'lua>(&self, lua: &'lua Lua) -> LuaResult<Option<LuaTable<'lua>>> {
-        use libroccat::device::ryosmkfx::{EventKeyAction, EventLiveRecordingAction,
-                                          EventRadSubtype, EventType};
+    fn get_event_table<'lua>(&self, lua: LuaContext<'lua>) -> LuaResult<Option<LuaTable<'lua>>> {
+        use libroccat::device::ryosmkfx::{
+            EventKeyAction, EventLiveRecordingAction, EventRadSubtype, EventType,
+        };
 
         if let Some(event) = self.0.get_event() {
             let table = lua.create_table()?;
@@ -142,7 +145,7 @@ impl RyosMkFx {
 }
 
 impl LuaUserData for RyosMkFx {
-    fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("name", |_, _, ()| Ok("ryosmkfx"));
 
         methods.add_method("get_event", |lua, this, ()| loop {
@@ -175,18 +178,17 @@ impl LuaUserData for RyosMkFx {
         });
 
         methods.add_method("get_profile", |_, this, ()| {
-            Ok(this.0.get_profile().unwrap())
+            this.0.get_profile().map_err(rlua::Error::external)
         });
 
         methods.add_method("set_profile", |_, this, profile| {
-            this.0.set_profile(profile).unwrap();
-            Ok(())
+            this.0.set_profile(profile).map_err(rlua::Error::external)
         });
 
         methods.add_method("get_lights", |lua, this, profile| {
             use libroccat::device::ryosmkfx::*;
 
-            let lights = this.0.get_lights(profile).unwrap();
+            let lights = this.0.get_lights(profile).map_err(rlua::Error::external)?;
             let table = lua.create_table()?;
             table.set("brightness", lights.brightness)?;
             table.set("dimness", lights.dimness)?;
@@ -252,8 +254,8 @@ impl LuaUserData for RyosMkFx {
             if let Ok(timeout) = table.get("timeout") {
                 lights.timeout = timeout;
             }
-            if let Ok(mode) = table.get("mode"): LuaResult<String> {
-                lights.mode = match &mode as &str {
+            if let Ok(mode) = table.get::<_, String>("mode") {
+                lights.mode = match mode.as_str() {
                     "plain" => LightMode::Plain,
                     "layer" => LightMode::Layer,
                     _ => {
@@ -265,8 +267,8 @@ impl LuaUserData for RyosMkFx {
                     }
                 };
             }
-            if let Ok(effect) = table.get("effect"): LuaResult<String> {
-                lights.effect = match &effect as &str {
+            if let Ok(effect) = table.get::<_, String>("effect") {
+                lights.effect = match effect.as_str() {
                     "off" => LightEffect::Off,
                     "fully_lit" => LightEffect::FullyLit,
                     "blinking" => LightEffect::Blinking,
@@ -290,8 +292,8 @@ impl LuaUserData for RyosMkFx {
             if let Ok(effect_speed) = table.get("effect_speed") {
                 lights.effect_speed = effect_speed;
             }
-            if let Ok(led_feedback) = table.get("led_feedback"): LuaResult<String> {
-                lights.led_feedback = match &led_feedback as &str {
+            if let Ok(led_feedback) = table.get::<_, String>("led_feedback") {
+                lights.led_feedback = match led_feedback.as_str() {
                     "off" => LightLedFeedback::Off,
                     "macro_execution" => LightLedFeedback::MacroExecution,
                     _ => {
@@ -303,8 +305,8 @@ impl LuaUserData for RyosMkFx {
                     }
                 }
             }
-            if let Ok(dimness_type) = table.get("dimness_type"): LuaResult<String> {
-                lights.dimness_type = match &dimness_type as &str {
+            if let Ok(dimness_type) = table.get::<_, String>("dimness_type") {
+                lights.dimness_type = match dimness_type.as_str() {
                     "off" => LightDimnessType::Off,
                     "starlit_sky" => LightDimnessType::StarlitSky,
                     "fall_asleep" => LightDimnessType::FallAsleep,
@@ -326,18 +328,25 @@ impl LuaUserData for RyosMkFx {
             if let Ok(blue) = table.get("blue") {
                 lights.blue = blue;
             }
-            this.0.set_lights(&lights).unwrap();
+            this.0.set_lights(&lights).map_err(rlua::Error::external)?;
 
             Ok(())
         });
 
         methods.add_method("set_custom_lights_active", |_, this, active| {
-            this.0.set_custom_lights_active(active).unwrap();
+            this.0
+                .set_custom_lights_active(active)
+                .map_err(rlua::Error::external)?;
             Ok(())
         });
 
         methods.add_method("get_custom_lights", |lua, this, ()| {
-            let data = this.0.get_custom_lights().unwrap().light_layer.get_data();
+            let data = this
+                .0
+                .get_custom_lights()
+                .map_err(rlua::Error::external)?
+                .light_layer
+                .get_data();
             let table = lua.create_table()?;
 
             for i in 0..120 {
@@ -360,7 +369,7 @@ impl LuaUserData for RyosMkFx {
             let mut data = LightLayerData::default();
 
             for i in 0..120 {
-                if let Ok(key_table) = table.get(i): LuaResult<LuaTable> {
+                if let Ok(key_table) = table.get::<_, LuaTable>(i) {
                     data.set_key_state(i, key_table.get("state")?);
                     data.set_key_red(i, key_table.get("red")?);
                     data.set_key_green(i, key_table.get("green")?);
@@ -370,7 +379,7 @@ impl LuaUserData for RyosMkFx {
 
             this.0
                 .set_custom_lights(&CustomLights::new(LightLayer::from_data(&data)))
-                .unwrap();
+                .map_err(rlua::Error::external)?;
 
             Ok(())
         });
@@ -380,15 +389,15 @@ impl LuaUserData for RyosMkFx {
 struct Tyon(libroccat::device::tyon::Tyon);
 
 impl LuaUserData for Tyon {
-    fn add_methods(methods: &mut LuaUserDataMethods<Self>) {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("name", |_, _, ()| Ok("tyon"));
 
         methods.add_method("get_profile", |_, this, ()| {
-            Ok(this.0.get_profile().unwrap())
+            Ok(this.0.get_profile().map_err(rlua::Error::external)?)
         });
 
         methods.add_method("set_profile", |_, this, profile| {
-            this.0.set_profile(profile).unwrap();
+            this.0.set_profile(profile).map_err(rlua::Error::external)?;
             Ok(())
         });
     }

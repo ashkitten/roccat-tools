@@ -1,11 +1,12 @@
 [package]
-authors = ["Ash Levy <ashlea@protonmail.com>", "panicbit <panicbit.dev@gmail.com>"]
+authors = ["ash lea <ashlea@protonmail.com>", "panicbit <panicbit.dev@gmail.com>"]
 name = "hidraw-derive"
 version = "0.1.0"
+edition = "2018"
 
 [dependencies]
-quote = "0.4.2"
-syn = "0.12.10"
+quote = "0.6.13"
+syn = "0.15.42"
 
 [lib]
 proc-macro = true

@@ -1,13 +1,14 @@
 [package]
 name = "libroccat"
 version = "0.1.0"
-authors = ["Ash Levy <ashlea@protonmail.com>"]
+authors = ["ash lea <ashlea@protonmail.com>"]
+edition = "2018"
 
 [dependencies]
 bitfield = { path = "../bitfield" }
 hidraw-derive = { path = "hidraw-derive" }
-failure = "0.1.1"
-futures = "0.1.18"
+failure = "0.1.5"
+futures = "0.1.28"
 libudev = "0.2.0"
-log = "0.4.1"
-nix = "0.10.0"
+log = "0.4.8"
+nix = "0.14.1"

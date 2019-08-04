@@ -1,11 +1,9 @@
-extern crate libroccat;
-
 use libroccat::device::Device;
 
 #[test]
 fn ryosmkfx() {
     for device in libroccat::find_devices().unwrap() {
-        if let Device::RyosMkFx(mut device) = device {
+        if let Device::RyosMkFx(device) = device {
             use libroccat::device::ryosmkfx::*;
 
             println!("Found Ryos MK FX");

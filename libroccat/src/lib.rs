@@ -1,26 +1,7 @@
-#![feature(try_from, type_ascription)]
-// Keep clippy from complaining about format_err! without format args
-#![cfg_attr(feature = "cargo-clippy", allow(useless_format))]
-
-extern crate bitfield;
-#[macro_use]
-extern crate failure;
-extern crate futures;
-#[macro_use]
-extern crate hidraw_derive;
-extern crate libudev;
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate nix;
-
 pub mod device;
 
-use failure::Error;
-
-use device::Device;
-use device::ryosmkfx::RyosMkFx;
-use device::tyon::Tyon;
+use crate::device::{ryosmkfx::RyosMkFx, tyon::Tyon, Device};
+use failure::{format_err, Error};
 
 pub fn find_devices() -> Result<Vec<Device>, Error> {
     let context = libudev::Context::new().unwrap();
@@ -83,7 +64,8 @@ pub fn find_devices() -> Result<Vec<Device>, Error> {
                         .collect(),
                 )?)),
                 _ => None,
-            }.ok_or_else(|| format_err!("Incompatible Roccat device"))
+            }
+            .ok_or_else(|| format_err!("Incompatible Roccat device"))
         })
         .filter_map(|device| {
             if let Ok(device) = device {
